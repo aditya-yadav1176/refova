@@ -1,8 +1,18 @@
 import { useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Menu, Search, X } from "lucide-react";
+import { LogOut, Menu, Search, User, X } from "lucide-react";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Wordmark } from "./wordmark";
+import { useAuth } from "@/lib/auth";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const nav = [
   { to: "/discover", label: "Discover" },
@@ -14,11 +24,19 @@ export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     navigate({ to: "/discover", search: { q: q || undefined } });
     setOpen(false);
+  };
+
+  const handleLogout = () => {
+    logout();
+    setOpen(false);
+    toast("You've been logged out", { description: "See you next time!" });
+    void navigate({ to: "/" });
   };
 
   return (
@@ -51,6 +69,7 @@ export function SiteHeader() {
           )}
         </nav>
 
+        {/* Desktop search */}
         <form onSubmit={submit} className="ml-auto hidden items-center lg:flex">
           <div className="relative">
             <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -63,14 +82,56 @@ export function SiteHeader() {
           </div>
         </form>
 
+        {/* Desktop right actions */}
         <div className={cn("hidden items-center gap-2 md:flex", "lg:ml-3 ml-auto lg:ml-3")}>
-          <Link
-            to="/profile/$username"
-            params={{ username: "aditya" }}
-            className="rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
-          >
-            Log in
-          </Link>
+          {user ? (
+            /* ── Logged-in state ── */
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  aria-label="Account menu"
+                  className="press inline-grid size-9 shrink-0 place-items-center rounded-full border-2 border-foreground bg-amber-soft font-display text-sm font-extrabold text-amber transition-opacity hover:opacity-90"
+                >
+                  {user.initials}
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-52">
+                <DropdownMenuLabel className="font-normal">
+                  <p className="font-semibold text-foreground">{user.name}</p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">{user.email}</p>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link
+                    to="/profile/$username"
+                    params={{ username: user.username }}
+                    className="flex cursor-pointer items-center gap-2"
+                  >
+                    <User className="size-3.5" />
+                    View profile
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={handleLogout}
+                  className="flex cursor-pointer items-center gap-2 text-destructive focus:text-destructive"
+                >
+                  <LogOut className="size-3.5" />
+                  Log out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            /* ── Logged-out state ── */
+            <Link
+              to="/login"
+              className="rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+            >
+              Log in
+            </Link>
+          )}
+
           <Link
             to="/post"
             className="rounded-lg border-2 border-foreground bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground press"
@@ -80,6 +141,7 @@ export function SiteHeader() {
           </Link>
         </div>
 
+        {/* Mobile hamburger */}
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
@@ -90,8 +152,9 @@ export function SiteHeader() {
         </button>
       </div>
 
+      {/* Mobile menu */}
       {open && (
-        <div className="animate-fade-in border-t border-border bg-background px-4 py-4 md:hidden">
+        <div className="border-t border-border bg-background px-4 py-4 md:hidden">
           <form onSubmit={submit} className="mb-3">
             <input
               value={q}
@@ -101,15 +164,69 @@ export function SiteHeader() {
             />
           </form>
           <div className="flex flex-col gap-1">
-            <Link to="/discover" onClick={() => setOpen(false)} className="rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:bg-secondary">
+            <Link
+              to="/discover"
+              onClick={() => setOpen(false)}
+              className="rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:bg-secondary"
+            >
               Discover
             </Link>
-            <a href="/#categories" onClick={() => setOpen(false)} className="rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:bg-secondary">
+            <a
+              href="/#categories"
+              onClick={() => setOpen(false)}
+              className="rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:bg-secondary"
+            >
               Categories
             </a>
-            <a href="/#how-it-works" onClick={() => setOpen(false)} className="rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:bg-secondary">
+            <a
+              href="/#how-it-works"
+              onClick={() => setOpen(false)}
+              className="rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:bg-secondary"
+            >
               How it works
             </a>
+
+            <div className="my-1 border-t border-border" />
+
+            {user ? (
+              /* ── Mobile logged-in ── */
+              <>
+                <div className="flex items-center gap-3 rounded-lg px-3 py-2">
+                  <span className="inline-grid size-8 shrink-0 place-items-center rounded-full border-2 border-foreground bg-amber-soft font-display text-xs font-extrabold text-amber">
+                    {user.initials}
+                  </span>
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold">{user.name}</p>
+                    <p className="truncate text-xs text-muted-foreground">{user.email}</p>
+                  </div>
+                </div>
+                <Link
+                  to="/profile/$username"
+                  params={{ username: user.username }}
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:bg-secondary"
+                >
+                  <User className="size-4" /> View profile
+                </Link>
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="flex items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-medium text-destructive transition-colors hover:bg-secondary"
+                >
+                  <LogOut className="size-4" /> Log out
+                </button>
+              </>
+            ) : (
+              /* ── Mobile logged-out ── */
+              <Link
+                to="/login"
+                onClick={() => setOpen(false)}
+                className="rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:bg-secondary"
+              >
+                Log in
+              </Link>
+            )}
+
             <Link
               to="/post"
               onClick={() => setOpen(false)}

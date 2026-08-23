@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { createFileRoute, notFound } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { Award, CalendarDays, Copy, Share2 } from "lucide-react";
 import { SiteHeader } from "@/components/site/site-header";
 import { SiteFooter } from "@/components/site/site-footer";
@@ -24,9 +24,15 @@ const bios: Record<string, { bio: string; since: string }> = {
 export const Route = createFileRoute("/profile/$username")({
   loader: ({ params }) => {
     const posted = referrals.filter((r) => r.postedBy.username === params.username);
-    const first = posted[0];
-    if (!first) throw notFound();
-    return { username: params.username, person: first.postedBy, posted };
+    // Allow profiles for users who haven't posted any referrals yet
+    // (e.g. a freshly signed-up user). The page's existing empty-state handles zero results.
+    const person = posted[0]?.postedBy ?? {
+      username: params.username,
+      name: params.username.charAt(0).toUpperCase() + params.username.slice(1),
+      initials: params.username.slice(0, 2).toUpperCase(),
+      trustScore: 0,
+    };
+    return { username: params.username, person, posted };
   },
   head: ({ loaderData }) => {
     if (!loaderData) {
@@ -74,9 +80,11 @@ function ProfilePage() {
           <div>
             <div className="flex flex-wrap items-center gap-3">
               <h1 className="text-3xl font-bold md:text-4xl">{person.name}</h1>
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-leaf-soft px-3 py-1 text-xs font-semibold text-leaf">
-                <Award className="size-3.5" /> Helpful contributor
-              </span>
+              {posted.length > 0 && (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-leaf-soft px-3 py-1 text-xs font-semibold text-leaf">
+                  <Award className="size-3.5" /> Helpful contributor
+                </span>
+              )}
             </div>
             <p className="mt-1 text-sm text-muted-foreground">@{username}</p>
             <p className="mt-3 max-w-lg text-base">{meta.bio}</p>

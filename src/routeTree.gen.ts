@@ -11,7 +11,9 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DiscoverRouteImport } from './routes/discover'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as PostRouteImport } from './routes/post'
+import { Route as SignupRouteImport } from './routes/signup'
 import { Route as CategorySlugRouteImport } from './routes/category.$slug'
 import { Route as ProfileUsernameRouteImport } from './routes/profile.$username'
 import { Route as ReferralIdRouteImport } from './routes/referral.$id'
@@ -26,9 +28,19 @@ const DiscoverRoute = DiscoverRouteImport.update({
   path: '/discover',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PostRoute = PostRouteImport.update({
   id: '/post',
   path: '/post',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignupRoute = SignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CategorySlugRoute = CategorySlugRouteImport.update({
@@ -50,7 +62,9 @@ const ReferralIdRoute = ReferralIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/discover': typeof DiscoverRoute
+  '/login': typeof LoginRoute
   '/post': typeof PostRoute
+  '/signup': typeof SignupRoute
   '/category/$slug': typeof CategorySlugRoute
   '/profile/$username': typeof ProfileUsernameRoute
   '/referral/$id': typeof ReferralIdRoute
@@ -58,7 +72,9 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/discover': typeof DiscoverRoute
+  '/login': typeof LoginRoute
   '/post': typeof PostRoute
+  '/signup': typeof SignupRoute
   '/category/$slug': typeof CategorySlugRoute
   '/profile/$username': typeof ProfileUsernameRoute
   '/referral/$id': typeof ReferralIdRoute
@@ -67,7 +83,9 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/discover': typeof DiscoverRoute
+  '/login': typeof LoginRoute
   '/post': typeof PostRoute
+  '/signup': typeof SignupRoute
   '/category/$slug': typeof CategorySlugRoute
   '/profile/$username': typeof ProfileUsernameRoute
   '/referral/$id': typeof ReferralIdRoute
@@ -77,7 +95,9 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/discover'
+    | '/login'
     | '/post'
+    | '/signup'
     | '/category/$slug'
     | '/profile/$username'
     | '/referral/$id'
@@ -85,7 +105,9 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/discover'
+    | '/login'
     | '/post'
+    | '/signup'
     | '/category/$slug'
     | '/profile/$username'
     | '/referral/$id'
@@ -93,7 +115,9 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/discover'
+    | '/login'
     | '/post'
+    | '/signup'
     | '/category/$slug'
     | '/profile/$username'
     | '/referral/$id'
@@ -102,7 +126,9 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DiscoverRoute: typeof DiscoverRoute
+  LoginRoute: typeof LoginRoute
   PostRoute: typeof PostRoute
+  SignupRoute: typeof SignupRoute
   CategorySlugRoute: typeof CategorySlugRoute
   ProfileUsernameRoute: typeof ProfileUsernameRoute
   ReferralIdRoute: typeof ReferralIdRoute
@@ -124,11 +150,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DiscoverRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/post': {
       id: '/post'
       path: '/post'
       fullPath: '/post'
       preLoaderRoute: typeof PostRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/signup': {
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/category/$slug': {
@@ -158,7 +198,9 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DiscoverRoute: DiscoverRoute,
+  LoginRoute: LoginRoute,
   PostRoute: PostRoute,
+  SignupRoute: SignupRoute,
   CategorySlugRoute: CategorySlugRoute,
   ProfileUsernameRoute: ProfileUsernameRoute,
   ReferralIdRoute: ReferralIdRoute,
