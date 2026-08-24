@@ -18,7 +18,7 @@ export type AuthUser = {
   trustScore: number;
 };
 
-type LoginResult  = { success: true } | { success: false; error: string };
+type LoginResult = { success: true } | { success: false; error: string };
 type SignupResult = { success: true } | { success: false; error: string };
 
 export type SignupData = {
@@ -31,10 +31,34 @@ type AuthCtx = {
   user: AuthUser | null;
   /** True while a login or signup request is in flight. */
   isLoading: boolean;
-  login:  (email: string, password: string) => Promise<LoginResult>;
-  signup: (data: SignupData)               => Promise<SignupResult>;
+  login: (email: string, password: string) => Promise<LoginResult>;
+  signup: (data: SignupData) => Promise<SignupResult>;
   logout: () => void;
 };
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+// eslint-disable-next-line react-refresh/only-export-components
+export function deriveUsername(email: string): string {
+  const localPart = email
+    .split("@")[0]
+    ?.toLowerCase()
+    .replace(/[^a-z0-9]/g, "");
+  return localPart || "user";
+}
+
+// eslint-disable-next-line react-refresh/only-export-components
+export function deriveInitials(name: string): string {
+  return (
+    name
+      .trim()
+      .split(/\s+/)
+      .map((w) => w[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2) || "??"
+  );
+}
 
 // ─── Mock login — REPLACE THIS FUNCTION BODY with a real API call ─────────────
 //
@@ -46,14 +70,13 @@ type AuthCtx = {
 async function mockAuthLogin(email: string, _password: string): Promise<AuthUser> {
   await new Promise((r) => setTimeout(r, 900));
 
-  const localPart =
-    email.split("@")[0].toLowerCase().replace(/[^a-z0-9]/g, "") || "user";
+  const localPart = deriveUsername(email);
 
   return {
     email,
-    name:      localPart.charAt(0).toUpperCase() + localPart.slice(1),
-    username:  localPart,
-    initials:  localPart.slice(0, 2).toUpperCase(),
+    name: localPart.charAt(0).toUpperCase() + localPart.slice(1),
+    username: localPart,
+    initials: localPart.slice(0, 2).toUpperCase(),
     trustScore: 0,
   };
 }
@@ -71,24 +94,14 @@ async function mockAuthSignup(data: SignupData): Promise<AuthUser> {
 
   const { name, email } = data;
   const trimmedName = name.trim();
-
-  // Build initials from full name (up to 2 letters)
-  const initials = trimmedName
-    .split(/\s+/)
-    .map((w) => w[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
-
-  // Derive a URL-safe username from the email local-part
-  const username =
-    email.split("@")[0].toLowerCase().replace(/[^a-z0-9]/g, "") || "user";
+  const username = deriveUsername(email);
+  const initials = deriveInitials(trimmedName);
 
   return {
     email,
-    name:      trimmedName,
+    name: trimmedName,
     username,
-    initials:  initials || username.slice(0, 2).toUpperCase(),
+    initials: initials !== "??" ? initials : username.slice(0, 2).toUpperCase(),
     trustScore: 0,
   };
 }
@@ -101,7 +114,7 @@ const Ctx = createContext<AuthCtx | null>(null);
 // ─── Provider ─────────────────────────────────────────────────────────────────
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser]         = useState<AuthUser | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   // Restore session on mount (client-only — sessionStorage is unavailable on server)
@@ -190,6 +203,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 // ─── Hook ─────────────────────────────────────────────────────────────────────
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth(): AuthCtx {
   const ctx = useContext(Ctx);
   if (!ctx) throw new Error("useAuth must be used inside <AuthProvider>.");

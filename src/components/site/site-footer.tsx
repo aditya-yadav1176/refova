@@ -9,7 +9,8 @@ export function SiteFooter() {
         <div className="md:col-span-1">
           <Wordmark />
           <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted-foreground">
-            A calmer place for referral links and codes — posted by people, checked by the community, easy to copy.
+            A calmer place for referral links and codes — posted by people, checked by the
+            community, easy to copy.
           </p>
         </div>
 

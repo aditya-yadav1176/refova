@@ -3,7 +3,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, Eye, EyeOff, UserPlus } from "lucide-react";
 import { toast } from "sonner";
 import { SiteHeader } from "@/components/site/site-header";
-import { useAuth } from "@/lib/auth";
+import { deriveUsername, useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 
 // ─── Route ────────────────────────────────────────────────────────────────────
@@ -34,7 +34,7 @@ type Fields = {
 type FieldErrors = Partial<Record<keyof Fields, string>>;
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const MIN_PW   = 8;
+const MIN_PW = 8;
 
 function validate(fields: Fields): FieldErrors {
   const errors: FieldErrors = {};
@@ -71,15 +71,15 @@ function SignUpPage() {
   const navigate = useNavigate();
 
   const [fields, setFields] = useState<Fields>({
-    name:            "",
-    email:           "",
-    password:        "",
+    name: "",
+    email: "",
+    password: "",
     confirmPassword: "",
   });
-  const [showPassword,        setShowPassword]        = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [fieldErrors, setFieldErrors]                 = useState<FieldErrors>({});
-  const [serverError, setServerError]                 = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
+  const [serverError, setServerError] = useState<string | null>(null);
 
   // Already logged in — send straight to profile
   if (user) {
@@ -108,14 +108,13 @@ function SignUpPage() {
 
     // Submit to auth layer
     const result = await signup({
-      name:     fields.name.trim(),
-      email:    fields.email.trim(),
+      name: fields.name.trim(),
+      email: fields.email.trim(),
       password: fields.password,
     });
 
     if (result.success) {
-      const username =
-        fields.email.split("@")[0].toLowerCase().replace(/[^a-z0-9]/g, "") || "user";
+      const username = deriveUsername(fields.email);
 
       toast.success("Account created! Welcome to Refova.", {
         description: "Start by exploring referrals or posting your own.",
@@ -133,7 +132,6 @@ function SignUpPage() {
 
       <main className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-7xl items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
         <div className="enter w-full max-w-md">
-
           {/* ← Back link */}
           <Link
             to="/login"
@@ -145,7 +143,6 @@ function SignUpPage() {
 
           {/* Card */}
           <div className="rounded-2xl border border-foreground/15 bg-card p-8 shadow-card md:p-10">
-
             {/* Heading */}
             <div className="mb-8">
               <h1 className="font-display text-3xl font-extrabold leading-tight tracking-tight">
@@ -158,7 +155,6 @@ function SignUpPage() {
 
             {/* Form */}
             <form onSubmit={handleSubmit} noValidate className="space-y-5">
-
               {/* Full name */}
               <div className="space-y-1.5">
                 <label htmlFor="name" className="text-sm font-semibold">
@@ -281,7 +277,11 @@ function SignUpPage() {
                     aria-label={showConfirmPassword ? "Hide password" : "Show password"}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
                   >
-                    {showConfirmPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                    {showConfirmPassword ? (
+                      <EyeOff className="size-4" />
+                    ) : (
+                      <Eye className="size-4" />
+                    )}
                   </button>
                 </div>
                 {fieldErrors.confirmPassword && (

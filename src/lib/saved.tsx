@@ -1,4 +1,12 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
 
 const KEY = "saved-referrals";
 
@@ -46,6 +54,7 @@ export function SavedProvider({ children }: { children: ReactNode }) {
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useSaved() {
   const ctx = useContext(Ctx);
   if (!ctx) return { saved: [], isSaved: () => false, toggle: () => false } as SavedCtx;

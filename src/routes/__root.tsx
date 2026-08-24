@@ -77,11 +77,17 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Refova — discover and share referrals" },
-      { name: "description", content: "Refova is a curated place to discover, copy and share referral links and codes." },
+      {
+        name: "description",
+        content: "Refova is a curated place to discover, copy and share referral links and codes.",
+      },
       { name: "author", content: "Refova" },
       { property: "og:site_name", content: "Refova" },
       { property: "og:title", content: "Refova — discover and share referrals" },
-      { property: "og:description", content: "Discover, copy and share referral offers posted by real people." },
+      {
+        property: "og:description",
+        content: "Discover, copy and share referral offers posted by real people.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -134,4 +140,3 @@ function RootComponent() {
     </QueryClientProvider>
   );
 }
-

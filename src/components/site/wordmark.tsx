@@ -25,7 +25,6 @@ export function Wordmark({
       >
         Ref
         <span className="text-primary">ova</span>
-
       </span>
       <span
         aria-hidden

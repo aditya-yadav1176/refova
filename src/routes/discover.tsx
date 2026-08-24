@@ -21,7 +21,8 @@ export const Route = createFileRoute("/discover")({
       { property: "og:title", content: "Discover referral codes and links — Refova" },
       {
         property: "og:description",
-        content: "Search and filter referral offers posted by real people, then copy the code in one click.",
+        content:
+          "Search and filter referral offers posted by real people, then copy the code in one click.",
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "/discover" },
@@ -30,7 +31,8 @@ export const Route = createFileRoute("/discover")({
       { name: "twitter:title", content: "Discover referral codes and links — Refova" },
       {
         name: "twitter:description",
-        content: "Search and filter referral offers posted by real people, then copy the code in one click.",
+        content:
+          "Search and filter referral offers posted by real people, then copy the code in one click.",
       },
       { name: "twitter:image", content: `${loaderData?.origin ?? ""}/og/discover.jpg` },
     ],
@@ -52,8 +54,8 @@ function DiscoverPage() {
             Every referral worth using, in one searchable place.
           </h1>
           <p className="mt-4 text-base text-muted-foreground">
-            No more scrolling WhatsApp groups or dead Reddit threads. Filter by category, benefit and trust — then copy
-            what you need.
+            No more scrolling WhatsApp groups or dead Reddit threads. Filter by category, benefit
+            and trust — then copy what you need.
           </p>
         </div>
 

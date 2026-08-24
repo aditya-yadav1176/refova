@@ -55,8 +55,12 @@ export function ReferralCard({
           <div className="flex items-center gap-3">
             <ServiceMark initials={r.initials} slug={r.category} size="lg" />
             <div>
-              <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Featured referral</p>
-              <h3 className="mt-0.5 font-display text-2xl font-extrabold leading-tight md:text-3xl">{r.service}</h3>
+              <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
+                Featured referral
+              </p>
+              <h3 className="mt-0.5 font-display text-2xl font-extrabold leading-tight md:text-3xl">
+                {r.service}
+              </h3>
               <div className="mt-2 flex flex-wrap gap-1.5">
                 <CategoryChip slug={r.category} />
                 {r.trust.slice(0, 2).map((t) => (
@@ -72,7 +76,9 @@ export function ReferralCard({
         <div className={cn("relative mt-6 rounded-xl border border-foreground/12 p-5", c.soft)}>
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
-              <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-foreground/55">You get</p>
+              <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-foreground/55">
+                You get
+              </p>
               <div className="mt-2">
                 <BenefitBadge size="lg">{r.benefit}</BenefitBadge>
               </div>
@@ -81,7 +87,9 @@ export function ReferralCard({
               <Clock3 className="size-3.5" /> Ends {r.expires}
             </div>
           </div>
-          <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-foreground/70">{r.summary}</p>
+          <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-foreground/70">
+            {r.summary}
+          </p>
         </div>
 
         {/* Stats + tags */}
@@ -100,7 +108,9 @@ export function ReferralCard({
 
         {/* How to claim */}
         <div className="relative mt-4 flex flex-1 flex-col justify-between rounded-xl border border-dashed border-border p-4">
-          <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-muted-foreground">How to claim</p>
+          <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
+            How to claim
+          </p>
           <ol className="mt-3 space-y-2">
             {r.conditions.slice(0, 3).map((cond, i) => (
               <li key={cond} className="flex items-start gap-2.5 text-sm text-foreground/75">
@@ -123,7 +133,6 @@ export function ReferralCard({
           </div>
         </div>
 
-
         {/* Bottom */}
         <div className="relative mt-auto flex flex-wrap items-center justify-between gap-4 border-t border-dashed border-border pt-5">
           <Poster r={r} />
@@ -133,7 +142,8 @@ export function ReferralCard({
               params={params}
               className="press inline-flex items-center gap-1 rounded-lg border border-border px-3 py-2 text-sm font-medium hover:bg-secondary"
             >
-              Details <ArrowUpRight className="size-4 transition-transform duration-200 group-hover:translate-x-0.5" />
+              Details{" "}
+              <ArrowUpRight className="size-4 transition-transform duration-200 group-hover:translate-x-0.5" />
             </Link>
             <CopyButton code={r.code} service={r.service} />
           </div>
@@ -141,7 +151,6 @@ export function ReferralCard({
       </article>
     );
   }
-
 
   if (variant === "compact") {
     return (
@@ -176,7 +185,11 @@ export function ReferralCard({
         <ServiceMark initials={r.initials} slug={r.category} />
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <Link to={to} params={params} className="font-semibold decoration-2 underline-offset-4 transition-colors hover:text-primary hover:underline">
+            <Link
+              to={to}
+              params={params}
+              className="font-semibold decoration-2 underline-offset-4 transition-colors hover:text-primary hover:underline"
+            >
               {r.service}
             </Link>
             <CategoryChip slug={r.category} />
@@ -207,7 +220,11 @@ export function ReferralCard({
         <div className="flex items-center gap-3">
           <ServiceMark initials={r.initials} slug={r.category} />
           <div>
-            <Link to={to} params={params} className="font-semibold decoration-2 underline-offset-4 transition-colors hover:text-primary hover:underline">
+            <Link
+              to={to}
+              params={params}
+              className="font-semibold decoration-2 underline-offset-4 transition-colors hover:text-primary hover:underline"
+            >
               {r.service}
             </Link>
             <p className="text-xs text-muted-foreground">{r.tags.slice(0, 2).join(" · ")}</p>

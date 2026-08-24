@@ -1,11 +1,23 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { LayoutGrid, Rows3, Search, SlidersHorizontal, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { benefitTypes, categories, referrals, type BenefitType, type CategorySlug } from "@/lib/referrals";
+import {
+  benefitTypes,
+  categories,
+  referrals,
+  type BenefitType,
+  type CategorySlug,
+} from "@/lib/referrals";
 import { ReferralCard } from "./referral-card";
 
-
-const suggestions = ["₹500 cashback", "free month", "food delivery", "developer tools", "travel credit", "verified"];
+const suggestions = [
+  "₹500 cashback",
+  "free month",
+  "food delivery",
+  "developer tools",
+  "travel credit",
+  "verified",
+];
 
 type Sort = "newest" | "popular";
 
@@ -33,11 +45,17 @@ export function ResultsExplorer({
       if (benefit !== "all" && r.benefitType !== benefit) return false;
       if (verifiedOnly && !r.trust.includes("verified")) return false;
       if (!q) return true;
-      return [r.service, r.benefit, r.summary, r.tags.join(" "), r.category].join(" ").toLowerCase().includes(q);
+      return (
+        r.service.toLowerCase().includes(q) ||
+        r.benefit.toLowerCase().includes(q) ||
+        r.summary.toLowerCase().includes(q) ||
+        r.category.includes(q) ||
+        r.tags.some((t) => t.toLowerCase().includes(q))
+      );
     });
     return sort === "popular"
-      ? [...list].sort((a, b) => b.popularity - a.popularity)
-      : [...list].sort((a, b) => b.copies / 5000 + (b.trust.length - a.trust.length) - a.copies / 5000);
+      ? list.sort((a, b) => b.popularity - a.popularity)
+      : list.sort((a, b) => b.copies / 5000 + (b.trust.length - a.trust.length) - a.copies / 5000);
   }, [query, category, benefit, verifiedOnly, sort, lockedCategory]);
 
   const signature = `${query}|${category}|${benefit}|${verifiedOnly}|${sort}`;
@@ -58,7 +76,6 @@ export function ResultsExplorer({
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [signature]);
-
 
   const reset = () => {
     setQuery("");
@@ -81,7 +98,9 @@ export function ResultsExplorer({
             />
           </label>
           <div className="mt-4 flex flex-wrap items-center gap-2">
-            <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Try</span>
+            <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              Try
+            </span>
             {suggestions.map((s) => (
               <button
                 key={s}
@@ -108,7 +127,11 @@ export function ResultsExplorer({
                 All categories
               </FilterPill>
               {categories.map((c) => (
-                <FilterPill key={c.slug} active={category === c.slug} onClick={() => setCategory(c.slug)}>
+                <FilterPill
+                  key={c.slug}
+                  active={category === c.slug}
+                  onClick={() => setCategory(c.slug)}
+                >
                   <span className="mr-1">{c.emoji}</span>
                   {c.name}
                 </FilterPill>
@@ -121,7 +144,11 @@ export function ResultsExplorer({
               Any benefit
             </FilterPill>
             {benefitTypes.map((b) => (
-              <FilterPill key={b.value} active={benefit === b.value} onClick={() => setBenefit(b.value)}>
+              <FilterPill
+                key={b.value}
+                active={benefit === b.value}
+                onClick={() => setBenefit(b.value)}
+              >
                 {b.label}
               </FilterPill>
             ))}
@@ -162,7 +189,9 @@ export function ResultsExplorer({
                     onClick={() => setSort(s)}
                     className={cn(
                       "rounded-md px-3 py-1.5 text-xs font-medium capitalize transition-colors",
-                      sort === s ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground",
+                      sort === s
+                        ? "bg-foreground text-background"
+                        : "text-muted-foreground hover:text-foreground",
                     )}
                   >
                     {s === "newest" ? "Newest" : "Most popular"}
@@ -176,7 +205,9 @@ export function ResultsExplorer({
                   onClick={() => setView("grid")}
                   className={cn(
                     "rounded-md p-1.5 transition-colors duration-200",
-                    view === "grid" ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground",
+                    view === "grid"
+                      ? "bg-secondary text-foreground"
+                      : "text-muted-foreground hover:text-foreground",
                   )}
                 >
                   <LayoutGrid className="size-4" />
@@ -187,7 +218,9 @@ export function ResultsExplorer({
                   onClick={() => setView("list")}
                   className={cn(
                     "rounded-md p-1.5 transition-colors duration-200",
-                    view === "list" ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground",
+                    view === "list"
+                      ? "bg-secondary text-foreground"
+                      : "text-muted-foreground hover:text-foreground",
                   )}
                 >
                   <Rows3 className="size-4" />
@@ -199,22 +232,28 @@ export function ResultsExplorer({
           {shown.length === 0 ? (
             <div className="results-swap" data-phase={phase}>
               <div className="result-item rounded-2xl border border-dashed border-border bg-card p-12 text-center">
-              <div className="mx-auto grid size-14 place-items-center rounded-2xl bg-secondary text-2xl">🔍</div>
-              <h3 className="mt-4 text-xl font-bold">Nothing matches that yet</h3>
-              <p className="mx-auto mt-2 max-w-sm text-sm text-muted-foreground">
-                Try a broader search, or drop the filters. You can also post the referral you were hoping to find.
-              </p>
-              <button
-                type="button"
-                onClick={reset}
-                className="press mt-5 rounded-lg border-2 border-foreground bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
-              >
-                Reset search
-              </button>
+                <div className="mx-auto grid size-14 place-items-center rounded-2xl bg-secondary text-2xl">
+                  🔍
+                </div>
+                <h3 className="mt-4 text-xl font-bold">Nothing matches that yet</h3>
+                <p className="mx-auto mt-2 max-w-sm text-sm text-muted-foreground">
+                  Try a broader search, or drop the filters. You can also post the referral you were
+                  hoping to find.
+                </p>
+                <button
+                  type="button"
+                  onClick={reset}
+                  className="press mt-5 rounded-lg border-2 border-foreground bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
+                >
+                  Reset search
+                </button>
               </div>
             </div>
           ) : view === "grid" ? (
-            <div className="results-swap grid auto-rows-fr gap-5 sm:grid-cols-2 xl:grid-cols-3" data-phase={phase}>
+            <div
+              className="results-swap grid auto-rows-fr gap-5 sm:grid-cols-2 xl:grid-cols-3"
+              data-phase={phase}
+            >
               {shown.map((r, i) => (
                 <div
                   key={r.id}
@@ -238,7 +277,6 @@ export function ResultsExplorer({
               ))}
             </div>
           )}
-
         </div>
       </div>
     </div>
@@ -248,7 +286,9 @@ export function ResultsExplorer({
 function FilterGroup({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="mb-5 border-t border-border pt-4">
-      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{title}</p>
+      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        {title}
+      </p>
       <div className="flex flex-wrap gap-1.5 lg:flex-col lg:items-start">{children}</div>
     </div>
   );

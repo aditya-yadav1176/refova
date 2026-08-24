@@ -1,13 +1,6 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import {
-  ArrowLeft,
-  Check,
-  Pencil,
-  PartyPopper,
-  Sparkles,
-  Wand2,
-} from "lucide-react";
+import { ArrowLeft, Check, Pencil, PartyPopper, Sparkles, Wand2 } from "lucide-react";
 import { toast } from "sonner";
 import { SiteHeader } from "@/components/site/site-header";
 import { SiteFooter } from "@/components/site/site-footer";
@@ -71,11 +64,11 @@ const EMPTY_FORM: ReviewForm = {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 function PostPage() {
-  const [step, setStep]           = useState<Step>("paste");
-  const [rawText, setRawText]     = useState("");
+  const [step, setStep] = useState<Step>("paste");
+  const [rawText, setRawText] = useState("");
   const [isParsing, setIsParsing] = useState(false);
   const [parseError, setParseError] = useState<string | null>(null);
-  const [form, setForm]           = useState<ReviewForm>(EMPTY_FORM);
+  const [form, setForm] = useState<ReviewForm>(EMPTY_FORM);
 
   const setField = <K extends keyof ReviewForm>(k: K, v: ReviewForm[K]) =>
     setForm((f) => ({ ...f, [k]: v }));
@@ -90,19 +83,17 @@ function PostPage() {
       // ← parseReferralContent is the backend-swap point (see referral-parser.ts)
       const p = await parseReferralContent(rawText);
       setForm({
-        service:        p.service,
-        code:           p.code,
-        benefit:        p.benefit,
-        category:       p.category,
-        summary:        p.summary,
+        service: p.service,
+        code: p.code,
+        benefit: p.benefit,
+        category: p.category,
+        summary: p.summary,
         conditionsText: p.conditions.join("\n"),
-        expires:        p.expires,
+        expires: p.expires,
       });
       setStep("review");
     } catch (err) {
-      setParseError(
-        err instanceof Error ? err.message : "Failed to process. Please try again.",
-      );
+      setParseError(err instanceof Error ? err.message : "Failed to process. Please try again.");
     } finally {
       setIsParsing(false);
     }
@@ -135,7 +126,8 @@ function PostPage() {
           <h1 className="mt-8 text-4xl font-bold md:text-5xl">Your referral is live</h1>
           <p className="mt-4 max-w-md text-base text-muted-foreground">
             <strong>{form.service || "Your referral"}</strong> is now in the discover feed. You'll
-            get a nudge each time someone copies it, and verification usually completes within a day.
+            get a nudge each time someone copies it, and verification usually completes within a
+            day.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <Link
@@ -174,7 +166,6 @@ function PostPage() {
       <div className="min-h-screen">
         <SiteHeader />
         <main className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-
           {/* Header */}
           <div className="max-w-2xl">
             <button
@@ -197,10 +188,8 @@ function PostPage() {
           </div>
 
           <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_380px]">
-
             {/* ── Left: Editable form ── */}
             <form onSubmit={handlePublish} className="space-y-6">
-
               {/* Service + category */}
               <Section title="The basics" step="01">
                 <Field label="Brand / service name" required>
@@ -341,7 +330,10 @@ function PostPage() {
                       .filter(Boolean)
                       .slice(0, 3)
                       .map((c) => (
-                        <li key={c} className="flex items-start gap-2 text-xs text-muted-foreground">
+                        <li
+                          key={c}
+                          className="flex items-start gap-2 text-xs text-muted-foreground"
+                        >
                           <span className="mt-px inline-grid size-4 shrink-0 place-items-center rounded-full bg-secondary text-[10px] font-bold">
                             ✓
                           </span>
@@ -364,7 +356,6 @@ function PostPage() {
                 This is roughly how your card appears in the discover feed.
               </p>
             </aside>
-
           </div>
         </main>
         <SiteFooter />
@@ -379,15 +370,12 @@ function PostPage() {
 
       <main className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-7xl items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
         <div className="enter w-full max-w-2xl">
-
           {/* Heading */}
           <div className="mb-8">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
               Post a referral
             </p>
-            <h1 className="mt-3 text-4xl font-bold leading-tight md:text-5xl">
-              Share a referral
-            </h1>
+            <h1 className="mt-3 text-4xl font-bold leading-tight md:text-5xl">Share a referral</h1>
             <p className="mt-4 text-base text-muted-foreground">
               Paste your referral message, code, or offer.{" "}
               <span className="font-medium text-foreground">
@@ -398,9 +386,7 @@ function PostPage() {
 
           {/* Paste card */}
           <div className="rounded-2xl border border-foreground/15 bg-card p-6 shadow-card md:p-8">
-
             <form onSubmit={handleCreate} className="space-y-5">
-
               {/* Textarea */}
               <div className="space-y-1.5">
                 <label htmlFor="referral-text" className="text-sm font-semibold">
@@ -441,7 +427,9 @@ function PostPage() {
               <button
                 type="submit"
                 disabled={isParsing || !rawText.trim()}
-                style={{ boxShadow: isParsing || !rawText.trim() ? "none" : "3px 3px 0 var(--ink)" }}
+                style={{
+                  boxShadow: isParsing || !rawText.trim() ? "none" : "3px 3px 0 var(--ink)",
+                }}
                 className={cn(
                   "press w-full rounded-xl border-2 border-foreground bg-primary px-5 py-3.5 text-base font-semibold text-primary-foreground",
                   "disabled:cursor-not-allowed disabled:opacity-60",

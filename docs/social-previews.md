@@ -2,12 +2,12 @@
 
 ## What each route ships
 
-| Route | Title | Image |
-| --- | --- | --- |
-| `/` | Refova — find referrals, share benefits | `/og/home.jpg` |
-| `/discover` | Discover referral codes and links — Refova | `/og/discover.jpg` |
-| `/post` | Post a referral and share the benefit — Refova | `/og/post.jpg` |
-| `/referral/$id` | `<Service> referral — <benefit> · Refova` | `/og/referral.jpg` |
+| Route           | Title                                          | Image              |
+| --------------- | ---------------------------------------------- | ------------------ |
+| `/`             | Refova — find referrals, share benefits        | `/og/home.jpg`     |
+| `/discover`     | Discover referral codes and links — Refova     | `/og/discover.jpg` |
+| `/post`         | Post a referral and share the benefit — Refova | `/og/post.jpg`     |
+| `/referral/$id` | `<Service> referral — <benefit> · Refova`      | `/og/referral.jpg` |
 
 Every one of these routes sets `og:title`, `og:description`, `og:type`,
 `og:url`, `og:image`, `twitter:card=summary_large_image`, `twitter:title`,

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Award, CalendarDays, Copy, Share2 } from "lucide-react";
+import { toast } from "sonner";
 import { SiteHeader } from "@/components/site/site-header";
 import { SiteFooter } from "@/components/site/site-footer";
 import { ReferralCard } from "@/components/referral/referral-card";
@@ -9,12 +10,18 @@ import { useSaved } from "@/lib/saved";
 import { cn } from "@/lib/utils";
 
 const bios: Record<string, { bio: string; since: string }> = {
-  aditya: { bio: "Collects fintech referrals, tests every one before posting.", since: "March 2024" },
+  aditya: {
+    bio: "Collects fintech referrals, tests every one before posting.",
+    since: "March 2024",
+  },
   mira: { bio: "Product designer. Mostly SaaS and design tool invites.", since: "July 2024" },
   kabir: { bio: "Backend dev. Hosting credits, databases, dev tooling.", since: "January 2024" },
   neha: { bio: "Food-first. Delivery, groceries and the odd snack box.", since: "October 2024" },
   ravi: { bio: "Books too many trips. Travel and cab referrals.", since: "May 2024" },
-  isha: { bio: "Learning something new every quarter. Courses and test prep.", since: "February 2025" },
+  isha: {
+    bio: "Learning something new every quarter. Courses and test prep.",
+    since: "February 2025",
+  },
   tara: { bio: "Shopping deals, sale hunting, honest reviews.", since: "August 2025" },
   arun: { bio: "Streaming, music and games — invites that actually work.", since: "June 2024" },
   sana: { bio: "Freelancer. Banking and invoicing tools I actually use.", since: "November 2023" },
@@ -36,7 +43,9 @@ export const Route = createFileRoute("/profile/$username")({
   },
   head: ({ loaderData }) => {
     if (!loaderData) {
-      return { meta: [{ title: "Member unavailable — Refova" }, { name: "robots", content: "noindex" }] };
+      return {
+        meta: [{ title: "Member unavailable — Refova" }, { name: "robots", content: "noindex" }],
+      };
     }
     const { person, posted } = loaderData;
     const title = `${person.name} — referrals shared on Refova`;
@@ -117,7 +126,15 @@ function ProfilePage() {
           ))}
           <button
             type="button"
-            className="ml-auto inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium"
+            onClick={() => {
+              if (typeof navigator !== "undefined" && navigator.clipboard) {
+                navigator.clipboard.writeText(window.location.href);
+              }
+              toast("Profile link copied", {
+                description: "Anyone can view this contributor profile.",
+              });
+            }}
+            className="press ml-auto inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium hover:bg-secondary"
           >
             <Share2 className="size-4" /> Share profile
           </button>

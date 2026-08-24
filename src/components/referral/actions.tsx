@@ -24,7 +24,9 @@ export function CopyButton({
       /* clipboard blocked — still show the prototype success state */
     }
     setCopied(true);
-    toast.success(`${service} referral copied`, { description: "Paste it at signup to claim the benefit." });
+    toast.success(`${service} referral copied`, {
+      description: "Paste it at signup to claim the benefit.",
+    });
     window.setTimeout(() => setCopied(false), 2000);
   };
 

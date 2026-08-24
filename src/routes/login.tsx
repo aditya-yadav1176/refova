@@ -4,7 +4,7 @@ import { z } from "zod";
 import { ArrowLeft, Eye, EyeOff, LogIn } from "lucide-react";
 import { toast } from "sonner";
 import { SiteHeader } from "@/components/site/site-header";
-import { useAuth } from "@/lib/auth";
+import { deriveUsername, useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 
 // ─── Route ────────────────────────────────────────────────────────────────────
@@ -21,8 +21,7 @@ export const Route = createFileRoute("/login")({
       { title: "Log in — Refova" },
       {
         name: "description",
-        content:
-          "Log in to your Refova account to post, save and manage your referrals.",
+        content: "Log in to your Refova account to post, save and manage your referrals.",
       },
       { name: "robots", content: "noindex" },
     ],
@@ -44,12 +43,12 @@ function LoginPage() {
 
   // Already logged in — send straight to profile (or the intended redirect target)
   if (user) {
-    void navigate(
-      redirect
-        ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          { to: redirect as any }
-        : { to: "/profile/$username", params: { username: user.username } },
-    );
+    if (redirect) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      void navigate({ to: redirect as any });
+    } else {
+      void navigate({ to: "/profile/$username", params: { username: user.username } });
+    }
     return null;
   }
 
@@ -60,12 +59,7 @@ function LoginPage() {
     const result = await login(email, password);
 
     if (result.success) {
-      // Derive username the same way mockAuthLogin does so the redirect matches
-      const username =
-        email
-          .split("@")[0]
-          .toLowerCase()
-          .replace(/[^a-z0-9]/g, "") || "user";
+      const username = deriveUsername(email);
 
       if (redirect) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -99,7 +93,6 @@ function LoginPage() {
 
       <main className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-7xl items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
         <div className="enter w-full max-w-md">
-
           {/* ← Back link */}
           <Link
             to="/"
@@ -111,7 +104,6 @@ function LoginPage() {
 
           {/* Card */}
           <div className="rounded-2xl border border-foreground/15 bg-card p-8 shadow-card md:p-10">
-
             {/* Heading */}
             <div className="mb-8">
               <h1 className="font-display text-3xl font-extrabold leading-tight tracking-tight">
@@ -124,7 +116,6 @@ function LoginPage() {
 
             {/* Form */}
             <form onSubmit={handleSubmit} noValidate className="space-y-5">
-
               {/* Email */}
               <div className="space-y-1.5">
                 <label htmlFor="email" className="text-sm font-semibold">
@@ -173,11 +164,7 @@ function LoginPage() {
                     aria-label={showPassword ? "Hide password" : "Show password"}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
                   >
-                    {showPassword ? (
-                      <EyeOff className="size-4" />
-                    ) : (
-                      <Eye className="size-4" />
-                    )}
+                    {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
                   </button>
                 </div>
               </div>
@@ -274,4 +261,3 @@ function LoginPage() {
     </div>
   );
 }
-

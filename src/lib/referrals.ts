@@ -176,7 +176,11 @@ export const referrals: Referral[] = [
     summary: "Unlock one month of LoomNote Pro — unlimited notes, AI summaries, offline sync.",
     details:
       "Sign up with this link and Pro unlocks automatically for 30 days, no card needed up front. If you stay after the trial, I receive one free month too.",
-    conditions: ["New workspaces only", "Card required after day 30", "Cannot stack with student plan"],
+    conditions: [
+      "New workspaces only",
+      "Card required after day 30",
+      "Cannot stack with student plan",
+    ],
     code: "https://loomnote.example/r/mira-pro",
     isLink: true,
     tags: ["notes", "AI", "SaaS"],
@@ -199,7 +203,11 @@ export const referrals: Referral[] = [
     summary: "Get 20% off your first three food orders, up to ₹150 per order.",
     details:
       "Apply the code at checkout. Works on the first three orders from any restaurant on BiteCart. Delivery fee is not discounted.",
-    conditions: ["First-time BiteCart users", "Max ₹150 discount per order", "Not valid on groceries"],
+    conditions: [
+      "First-time BiteCart users",
+      "Max ₹150 discount per order",
+      "Not valid on groceries",
+    ],
     code: "BITE20-NEHA",
     isLink: false,
     tags: ["delivery", "first order"],
@@ -222,7 +230,11 @@ export const referrals: Referral[] = [
     summary: "Earn ₹1,000 travel credit after completing your first booking.",
     details:
       "Book any flight or hotel worth ₹4,000+ and SkyHop drops ₹1,000 in travel credits into your account after check-in is complete.",
-    conditions: ["Minimum booking value ₹4,000", "Credit expires 6 months after issue", "One per traveller"],
+    conditions: [
+      "Minimum booking value ₹4,000",
+      "Credit expires 6 months after issue",
+      "One per traveller",
+    ],
     code: "SKYHOP-RVK1000",
     isLink: false,
     tags: ["flights", "hotels", "credit"],
@@ -333,7 +345,8 @@ export const referrals: Referral[] = [
     benefit: "₹750 REWARD",
     benefitType: "reward",
     summary: "Open a zero-balance account and both of us get ₹750.",
-    details: "Fully digital onboarding. Reward credits after your first ₹1,000 deposit stays for 30 days.",
+    details:
+      "Fully digital onboarding. Reward credits after your first ₹1,000 deposit stays for 30 days.",
     conditions: ["Aadhaar-based KYC", "₹1,000 must stay for 30 days", "Salary accounts excluded"],
     code: "VAULT-750-SANA",
     isLink: false,
@@ -553,7 +566,8 @@ export const referrals: Referral[] = [
     benefit: "₹600 CREDITS",
     benefitType: "credits",
     summary: "₹600 in credits toward any focus-timer team plan.",
-    details: "Credits apply at the next billing cycle and never expire while the team stays active.",
+    details:
+      "Credits apply at the next billing cycle and never expire while the team stays active.",
     conditions: ["Teams of 3+", "Applied at next billing cycle"],
     code: "FLOW600-ADI",
     isLink: false,

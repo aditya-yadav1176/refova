@@ -13,7 +13,9 @@ export const Route = createFileRoute("/category/$slug")({
   },
   head: ({ loaderData }) => {
     if (!loaderData) {
-      return { meta: [{ title: "Category unavailable — Refova" }, { name: "robots", content: "noindex" }] };
+      return {
+        meta: [{ title: "Category unavailable — Refova" }, { name: "robots", content: "noindex" }],
+      };
     }
     const { category } = loaderData;
     const title = `${category.name} referrals — browse and copy · Refova`;

@@ -19,7 +19,9 @@ export const Route = createFileRoute("/referral/$id")({
   },
   head: ({ loaderData }) => {
     if (!loaderData) {
-      return { meta: [{ title: "Referral unavailable — Refova" }, { name: "robots", content: "noindex" }] };
+      return {
+        meta: [{ title: "Referral unavailable — Refova" }, { name: "robots", content: "noindex" }],
+      };
     }
     const r = loaderData.referral;
     const title = `${r.service} referral — ${r.benefit.toLowerCase()} · Refova`;
@@ -92,7 +94,11 @@ function ReferralDetail() {
                   <SaveButton id={r.id} service={r.service} withLabel />
                   <button
                     type="button"
-                    onClick={() => toast("Share link copied", { description: "Anyone can open this referral page." })}
+                    onClick={() =>
+                      toast("Share link copied", {
+                        description: "Anyone can open this referral page.",
+                      })
+                    }
                     className="inline-flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2 text-sm font-medium press hover:bg-secondary"
                   >
                     <Share2 className="size-4" /> Share
@@ -101,8 +107,12 @@ function ReferralDetail() {
               </div>
 
               <div className="mt-8 border-t border-dashed border-border pt-8">
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">The benefit</p>
-                <p className="mt-3 max-w-2xl font-display text-3xl font-bold leading-tight md:text-4xl">{r.summary}</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                  The benefit
+                </p>
+                <p className="mt-3 max-w-2xl font-display text-3xl font-bold leading-tight md:text-4xl">
+                  {r.summary}
+                </p>
                 <div className="mt-5">
                   <BenefitBadge size="lg">{r.benefit}</BenefitBadge>
                 </div>
@@ -114,7 +124,10 @@ function ReferralDetail() {
                   <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{r.details}</p>
                   <div className="mt-4 flex flex-wrap gap-1.5">
                     {r.tags.map((t) => (
-                      <span key={t} className="rounded-full bg-secondary px-2.5 py-1 text-xs font-medium">
+                      <span
+                        key={t}
+                        className="rounded-full bg-secondary px-2.5 py-1 text-xs font-medium"
+                      >
                         #{t}
                       </span>
                     ))}
@@ -146,7 +159,11 @@ function ReferralDetail() {
               </div>
               <button
                 type="button"
-                onClick={() => toast("Reported for review", { description: "Thanks — a moderator will take a look." })}
+                onClick={() =>
+                  toast("Reported for review", {
+                    description: "Thanks — a moderator will take a look.",
+                  })
+                }
                 className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-destructive"
               >
                 <Flag className="size-4" /> Report referral
@@ -190,7 +207,9 @@ function ReferralDetail() {
                 onClick={copy}
                 className={cn(
                   "mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl border-2 border-foreground px-5 py-3.5 text-base font-semibold transition-all active:translate-y-0.5",
-                  copied ? "bg-leaf-soft text-leaf" : "bg-primary text-primary-foreground hover:-translate-y-0.5",
+                  copied
+                    ? "bg-leaf-soft text-leaf"
+                    : "bg-primary text-primary-foreground hover:-translate-y-0.5",
                 )}
                 style={{ boxShadow: "4px 4px 0 var(--ink)" }}
               >
@@ -210,7 +229,9 @@ function ReferralDetail() {
               </p>
 
               <div className="mt-6 border-t border-border pt-5">
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">Posted by</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                  Posted by
+                </p>
                 <Link
                   to="/profile/$username"
                   params={{ username: r.postedBy.username }}

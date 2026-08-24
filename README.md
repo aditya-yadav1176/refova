@@ -26,16 +26,16 @@ The platform embraces a **"Paste once. We organize everything."** philosophy. Ra
 
 ## Tech Stack
 
-| Layer | Technology | Description |
-| :--- | :--- | :--- |
-| **Frontend Framework** | [React 19](https://react.dev/) | Component architecture with modern hooks and React 19 compiler readiness |
-| **Routing & App Shell** | [TanStack Router](https://tanstack.com/router) & [TanStack Start](https://tanstack.com/start) | Type-safe, file-based routing and SSR application shell |
-| **State & Data Fetching** | [TanStack Query v5](https://tanstack.com/query) | Async state handling, query caching, and client contexts |
-| **Styling & Theme** | [Tailwind CSS v4](https://tailwindcss.com/) | CSS-first styling engine utilizing custom OKLCH color tokens |
-| **UI Components & Icons** | [Radix UI](https://www.radix-ui.com/) & [Lucide React](https://lucide.dev/) | Accessible UI primitives and iconography |
-| **Notifications** | [Sonner](https://sonner.emilkowal.ski/) | Toast notification system for user actions and feedback |
-| **Validation** | [Zod](https://zod.dev/) | Schema validation for query parameters and forms |
-| **Build & Tooling** | [Vite 8](https://vitejs.dev/) & [TypeScript 5.8](https://www.typescriptlang.org/) | Next-generation frontend tooling and strict static typing |
+| Layer                     | Technology                                                                                    | Description                                                              |
+| :------------------------ | :-------------------------------------------------------------------------------------------- | :----------------------------------------------------------------------- |
+| **Frontend Framework**    | [React 19](https://react.dev/)                                                                | Component architecture with modern hooks and React 19 compiler readiness |
+| **Routing & App Shell**   | [TanStack Router](https://tanstack.com/router) & [TanStack Start](https://tanstack.com/start) | Type-safe, file-based routing and SSR application shell                  |
+| **State & Data Fetching** | [TanStack Query v5](https://tanstack.com/query)                                               | Async state handling, query caching, and client contexts                 |
+| **Styling & Theme**       | [Tailwind CSS v4](https://tailwindcss.com/)                                                   | CSS-first styling engine utilizing custom OKLCH color tokens             |
+| **UI Components & Icons** | [Radix UI](https://www.radix-ui.com/) & [Lucide React](https://lucide.dev/)                   | Accessible UI primitives and iconography                                 |
+| **Notifications**         | [Sonner](https://sonner.emilkowal.ski/)                                                       | Toast notification system for user actions and feedback                  |
+| **Validation**            | [Zod](https://zod.dev/)                                                                       | Schema validation for query parameters and forms                         |
+| **Build & Tooling**       | [Vite 8](https://vitejs.dev/) & [TypeScript 5.8](https://www.typescriptlang.org/)             | Next-generation frontend tooling and strict static typing                |
 
 ---
 
@@ -48,21 +48,21 @@ flowchart TD
     subgraph Client ["Client Browser"]
         A[App Shell / __root.tsx] --> B[TanStack Router]
         B --> C[Pages & Routes]
-        
+
         subgraph Providers ["Context Providers"]
             D[AuthProvider]
             E[SavedProvider]
             F[QueryClientProvider]
         end
-        
+
         C --> Providers
-        
+
         subgraph UI ["Component Layer"]
             G[ReferralCard Variants]
             H[ResultsExplorer]
             I[SiteHeader & SiteFooter]
         end
-        
+
         Providers --> UI
     end
 
@@ -125,12 +125,14 @@ refova/
 ### Prerequisites
 
 Ensure you have the following installed on your machine:
+
 - **Node.js**: `v18.0.0` or higher
 - **npm**: `v9.0.0` or higher
 
 ### Installation
 
 1. Clone the repository:
+
    ```bash
    git clone https://github.com/aditya-yadav1176/refova.git
    cd refova
@@ -144,11 +146,13 @@ Ensure you have the following installed on your machine:
 ### Running Locally
 
 Start the local Vite development server:
+
 ```bash
 npm run dev
 ```
 
 The application will be accessible at:
+
 ```text
 http://localhost:8080/
 ```
@@ -158,6 +162,7 @@ http://localhost:8080/
 The current frontend prototype runs entirely client-side with mock data and local persistence. No external API keys are required for local development.
 
 When connecting to external authentication or production backend services, configuration variables can be added to a `.env.local` file:
+
 ```env
 # Optional future backend configuration
 VITE_API_BASE_URL=https://api.yourdomain.com
@@ -168,6 +173,7 @@ VITE_API_BASE_URL=https://api.yourdomain.com
 ## Core User Flows
 
 ### 1. Discovery & Claiming
+
 ```text
 [Landing / Home]
        │
@@ -181,6 +187,7 @@ VITE_API_BASE_URL=https://api.yourdomain.com
 ```
 
 ### 2. Simplified Ingestion Flow
+
 ```text
 [Click 'Post a Referral']
        │
@@ -212,10 +219,11 @@ Authentication is managed via a centralized React Context Provider ([`src/lib/au
 The extraction logic in [`src/lib/referral-parser.ts`](file:///d:/Projects/refova/src/lib/referral-parser.ts) exposes a single asynchronous interface:
 
 ```typescript
-export async function parseReferralContent(raw: string): Promise<ParsedReferral>
+export async function parseReferralContent(raw: string): Promise<ParsedReferral>;
 ```
 
 ### Supported Extraction Capabilities
+
 - **Brand Detection**: Pattern-matches brand identities across e-commerce, fintech, food delivery, travel, streaming, and developer tools.
 - **Code & Link Parsing**: Identifies promo codes, token sequences, and affiliate URLs.
 - **Benefit Extraction**: Detects cashbacks (e.g., `₹500 CASHBACK`), percentage discounts (`20% OFF`), free trials (`1 MONTH FREE`), and credit rewards.
@@ -228,14 +236,14 @@ export async function parseReferralContent(raw: string): Promise<ParsedReferral>
 
 ## Available Scripts
 
-| Command | Purpose |
-| :--- | :--- |
-| `npm run dev` | Starts the Vite development server with Hot Module Replacement (HMR) |
-| `npm run build` | Compiles the production build for client and server bundles |
-| `npm run build:dev` | Compiles a development-mode production build for inspection |
-| `npm run preview` | Runs a local server to preview the production build |
-| `npm run lint` | Runs ESLint across the codebase |
-| `npm run format` | Formats all code files using Prettier |
+| Command             | Purpose                                                              |
+| :------------------ | :------------------------------------------------------------------- |
+| `npm run dev`       | Starts the Vite development server with Hot Module Replacement (HMR) |
+| `npm run build`     | Compiles the production build for client and server bundles          |
+| `npm run build:dev` | Compiles a development-mode production build for inspection          |
+| `npm run preview`   | Runs a local server to preview the production build                  |
+| `npm run lint`      | Runs ESLint across the codebase                                      |
+| `npm run format`    | Formats all code files using Prettier                                |
 
 ---
 

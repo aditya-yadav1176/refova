@@ -21,7 +21,8 @@ export const Route = createFileRoute("/")({
       { property: "og:title", content: "Refova — find referrals, share benefits" },
       {
         property: "og:description",
-        content: "Discover referral offers posted by real people — copy the code, claim the benefit, share your own.",
+        content:
+          "Discover referral offers posted by real people — copy the code, claim the benefit, share your own.",
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "/" },
@@ -30,7 +31,8 @@ export const Route = createFileRoute("/")({
       { name: "twitter:title", content: "Refova — find referrals, share benefits" },
       {
         name: "twitter:description",
-        content: "Discover referral offers posted by real people — copy the code, claim the benefit, share your own.",
+        content:
+          "Discover referral offers posted by real people — copy the code, claim the benefit, share your own.",
       },
       { name: "twitter:image", content: `${loaderData?.origin ?? ""}/og/home.jpg` },
     ],
@@ -40,18 +42,46 @@ export const Route = createFileRoute("/")({
 });
 
 const heroCards = [
-  { label: "₹500 off", sub: "PayWise · finance", cls: "bg-leaf-soft text-leaf", pos: "left-0 top-6", tilt: "-5deg", anim: "animate-float-slow" },
-  { label: "1 month free", sub: "LoomNote · productivity", cls: "bg-grape-soft text-grape", pos: "right-2 top-0", tilt: "4deg", anim: "animate-float-med" },
-  { label: "₹1,000 reward", sub: "SkyHop · travel", cls: "bg-sky-soft text-sky", pos: "left-10 bottom-4", tilt: "3deg", anim: "animate-float-med" },
-  { label: "20% discount", sub: "BiteCart · food", cls: "bg-rose-soft text-rose", pos: "right-0 bottom-16", tilt: "-3deg", anim: "animate-float-slow" },
+  {
+    label: "₹500 off",
+    sub: "PayWise · finance",
+    cls: "bg-leaf-soft text-leaf",
+    pos: "left-0 top-6",
+    tilt: "-5deg",
+    anim: "animate-float-slow",
+  },
+  {
+    label: "1 month free",
+    sub: "LoomNote · productivity",
+    cls: "bg-grape-soft text-grape",
+    pos: "right-2 top-0",
+    tilt: "4deg",
+    anim: "animate-float-med",
+  },
+  {
+    label: "₹1,000 reward",
+    sub: "SkyHop · travel",
+    cls: "bg-sky-soft text-sky",
+    pos: "left-10 bottom-4",
+    tilt: "3deg",
+    anim: "animate-float-med",
+  },
+  {
+    label: "20% discount",
+    sub: "BiteCart · food",
+    cls: "bg-rose-soft text-rose",
+    pos: "right-0 bottom-16",
+    tilt: "-3deg",
+    anim: "animate-float-slow",
+  },
 ];
 
-function Home() {
-  const featured = referrals.slice(0, 1);
-  const medium = referrals.slice(1, 3);
-  const compact = referrals.slice(3, 7);
-  const trending = [...referrals].sort((a, b) => b.popularity - a.popularity).slice(0, 6);
+const featured = referrals.slice(0, 1);
+const medium = referrals.slice(1, 3);
+const compact = referrals.slice(3, 7);
+const trending = [...referrals].sort((a, b) => b.popularity - a.popularity).slice(0, 6);
 
+function Home() {
   return (
     <div className="min-h-screen">
       <SiteHeader />
@@ -61,10 +91,16 @@ function Home() {
         <section className="relative overflow-hidden dotted-paper">
           <div className="mx-auto grid max-w-7xl items-center gap-14 px-4 py-16 sm:px-6 lg:grid-cols-[1.05fr_1fr] lg:py-24 lg:px-8">
             <div>
-              <span className="enter inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-semibold" style={{ ["--reveal-delay" as string]: "60ms" }}>
+              <span
+                className="enter inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-semibold"
+                style={{ ["--reveal-delay" as string]: "60ms" }}
+              >
                 <Sparkles className="size-3.5 text-primary" /> 547 referrals posted this month
               </span>
-              <h1 className="enter mt-6 font-display text-5xl font-extrabold leading-[0.98] tracking-tight md:text-7xl" style={{ ["--reveal-delay" as string]: "140ms" }}>
+              <h1
+                className="enter mt-6 font-display text-5xl font-extrabold leading-[0.98] tracking-tight md:text-7xl"
+                style={{ ["--reveal-delay" as string]: "140ms" }}
+              >
                 Find referrals.
                 <br />
                 <span className="relative inline-block">
@@ -72,11 +108,18 @@ function Home() {
                   <span className="absolute -bottom-1 left-0 h-3 w-full -rotate-1 rounded bg-primary/25" />
                 </span>
               </h1>
-              <p className="enter mt-6 max-w-lg text-lg leading-relaxed text-muted-foreground" style={{ ["--reveal-delay" as string]: "220ms" }}>
-                Referral links and codes people actually posted — organised by category, checked by the community, and
-                one click from your clipboard. No more digging through group chats.
+              <p
+                className="enter mt-6 max-w-lg text-lg leading-relaxed text-muted-foreground"
+                style={{ ["--reveal-delay" as string]: "220ms" }}
+              >
+                Referral links and codes people actually posted — organised by category, checked by
+                the community, and one click from your clipboard. No more digging through group
+                chats.
               </p>
-              <div className="enter mt-8 flex flex-wrap gap-3" style={{ ["--reveal-delay" as string]: "300ms" }}>
+              <div
+                className="enter mt-8 flex flex-wrap gap-3"
+                style={{ ["--reveal-delay" as string]: "300ms" }}
+              >
                 <Link
                   to="/discover"
                   className="inline-flex items-center gap-2 rounded-xl border-2 border-foreground bg-primary px-6 py-3.5 text-base font-semibold text-primary-foreground press"
@@ -91,7 +134,10 @@ function Home() {
                   Share a referral
                 </Link>
               </div>
-              <p className="enter mt-5 text-sm text-muted-foreground" style={{ ["--reveal-delay" as string]: "360ms" }}>
+              <p
+                className="enter mt-5 text-sm text-muted-foreground"
+                style={{ ["--reveal-delay" as string]: "360ms" }}
+              >
                 Free to browse · no signup needed to copy a code
               </p>
             </div>
@@ -107,7 +153,9 @@ function Home() {
                     key={c.label}
                     className="rounded-2xl border border-foreground/15 bg-card p-4 shadow-card card-lift"
                   >
-                    <span className={`inline-grid size-9 place-items-center rounded-lg ${c.cls} font-bold`}>
+                    <span
+                      className={`inline-grid size-9 place-items-center rounded-lg ${c.cls} font-bold`}
+                    >
                       <Gift className="size-4" />
                     </span>
                     <p className="mt-3 font-display text-lg font-bold leading-tight">{c.label}</p>
@@ -125,7 +173,9 @@ function Home() {
                     className={`absolute ${c.pos} ${c.anim} w-56 rounded-2xl border border-foreground/15 bg-card p-4 shadow-lift transition-shadow duration-300 hover:shadow-card`}
                     style={{ ["--tilt" as string]: c.tilt, transform: `rotate(${c.tilt})` }}
                   >
-                    <span className={`inline-grid size-9 place-items-center rounded-lg ${c.cls} font-bold`}>
+                    <span
+                      className={`inline-grid size-9 place-items-center rounded-lg ${c.cls} font-bold`}
+                    >
                       <Gift className="size-4" />
                     </span>
                     <p className="mt-3 font-display text-xl font-bold">{c.label}</p>
@@ -173,7 +223,12 @@ function Home() {
           <div className="mt-10 grid auto-rows-fr items-stretch gap-5 lg:grid-cols-3">
             <Reveal className="flex lg:col-span-2 lg:row-span-2">
               {featured.map((r) => (
-                <ReferralCard key={r.id} referral={r} variant="featured" className="h-full w-full" />
+                <ReferralCard
+                  key={r.id}
+                  referral={r}
+                  variant="featured"
+                  className="h-full w-full"
+                />
               ))}
             </Reveal>
             {medium.map((r, i) => (
@@ -194,24 +249,30 @@ function Home() {
         {/* Categories */}
         <section id="categories" className="border-y border-border bg-card py-20">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <SectionHead eyebrow="Browse by category" title="Start where you were already looking" />
+            <SectionHead
+              eyebrow="Browse by category"
+              title="Start where you were already looking"
+            />
             <div className="mt-10 grid auto-rows-fr gap-5 sm:grid-cols-2 lg:grid-cols-4">
               {categories.map((c, i) => (
                 <Reveal key={c.slug} delay={(i % 4) * 70} className="flex">
-                <Link
-                  to="/category/$slug"
-                  params={{ slug: c.slug }}
-                  className={`group relative flex w-full flex-col justify-between overflow-hidden rounded-2xl border border-foreground/12 p-6 card-lift ${c.soft}`}
-                >
-                  <span className="text-3xl">{c.emoji}</span>
-                  <div className="mt-8">
-                    <h3 className="text-lg font-bold">{c.name}</h3>
-                    <p className="mt-1 text-sm text-foreground/60">{c.blurb}</p>
-                    <p className={`mt-4 inline-flex items-center gap-1 text-sm font-semibold ${c.accent}`}>
-                      {c.count} referrals <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
-                    </p>
-                  </div>
-                </Link>
+                  <Link
+                    to="/category/$slug"
+                    params={{ slug: c.slug }}
+                    className={`group relative flex w-full flex-col justify-between overflow-hidden rounded-2xl border border-foreground/12 p-6 card-lift ${c.soft}`}
+                  >
+                    <span className="text-3xl">{c.emoji}</span>
+                    <div className="mt-8">
+                      <h3 className="text-lg font-bold">{c.name}</h3>
+                      <p className="mt-1 text-sm text-foreground/60">{c.blurb}</p>
+                      <p
+                        className={`mt-4 inline-flex items-center gap-1 text-sm font-semibold ${c.accent}`}
+                      >
+                        {c.count} referrals{" "}
+                        <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
+                      </p>
+                    </div>
+                  </Link>
                 </Reveal>
               ))}
             </div>
@@ -223,11 +284,27 @@ function Home() {
           <SectionHead eyebrow="How it works" title="Three steps, no account required to start" />
           <div className="mt-10 grid auto-rows-fr gap-5 md:grid-cols-3">
             {[
-              { icon: Search, title: "Discover", body: "Search or browse by category and see what people are actually offering right now." },
-              { icon: Copy, title: "Copy", body: "Check the conditions, then copy the code or link. It stays hidden until you do." },
-              { icon: BadgeCheck, title: "Benefit", body: "Claim the reward at signup. Both you and the person who posted it win." },
+              {
+                icon: Search,
+                title: "Discover",
+                body: "Search or browse by category and see what people are actually offering right now.",
+              },
+              {
+                icon: Copy,
+                title: "Copy",
+                body: "Check the conditions, then copy the code or link. It stays hidden until you do.",
+              },
+              {
+                icon: BadgeCheck,
+                title: "Benefit",
+                body: "Claim the reward at signup. Both you and the person who posted it win.",
+              },
             ].map((s, i) => (
-              <Reveal key={s.title} delay={i * 90} className="relative flex h-full flex-col rounded-2xl border border-border bg-card p-7 shadow-card card-lift">
+              <Reveal
+                key={s.title}
+                delay={i * 90}
+                className="relative flex h-full flex-col rounded-2xl border border-border bg-card p-7 shadow-card card-lift"
+              >
                 <span className="absolute right-6 top-5 font-display text-5xl font-extrabold text-foreground/6">
                   0{i + 1}
                 </span>
@@ -265,7 +342,8 @@ function Home() {
               Sitting on a referral nobody knows about?
             </h2>
             <p className="relative mx-auto mt-4 max-w-xl text-base text-background/70">
-              Post it once and let people find it. Most referrals here get their first copy within a day.
+              Post it once and let people find it. Most referrals here get their first copy within a
+              day.
             </p>
             <Link
               to="/post"
