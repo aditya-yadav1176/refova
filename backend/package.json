@@ -1,0 +1,41 @@
+{
+  "name": "refova-backend",
+  "version": "1.0.0",
+  "description": "Production backend for Refova referral discovery platform",
+  "type": "commonjs",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "jest --runInBand --forceExit",
+    "test:coverage": "jest --coverage --runInBand --forceExit",
+    "seed:categories": "node scripts/seed-categories.js",
+    "seed:counters": "node scripts/seed-counters.js",
+    "make:admin": "node scripts/make-admin.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.18.2",
+    "express-rate-limit": "^7.3.1",
+    "firebase-admin": "^12.3.0",
+    "helmet": "^7.1.0",
+    "joi": "^17.13.1",
+    "multer": "^1.4.5-lts.1",
+    "pino": "^9.3.2",
+    "pino-http": "^10.2.0",
+    "uuid": "^10.0.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^7.0.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testMatch": ["**/tests/**/*.test.js"],
+    "setupFiles": ["./tests/jest.setup.js"]
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

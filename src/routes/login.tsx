@@ -33,7 +33,7 @@ export const Route = createFileRoute("/login")({
 
 function LoginPage() {
   const { redirect } = Route.useSearch();
-  const { user, login, isLoading } = useAuth();
+  const { user, login, loginWithGoogle, isLoading, resetPassword } = useAuth();
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
@@ -75,16 +75,35 @@ function LoginPage() {
     }
   };
 
-  const handleForgotPassword = () => {
-    toast("Password reset coming soon", {
-      description: "We'll email you a reset link once accounts are live.",
-    });
+  const handleForgotPassword = async () => {
+    if (!email.trim()) {
+      setError("Enter your email address first, then click Forgot password.");
+      return;
+    }
+    try {
+      await resetPassword(email.trim());
+      toast("Password reset email sent", {
+        description: `Check your inbox at ${email}.`,
+      });
+    } catch {
+      setError("Could not send reset email. Check your email address and try again.");
+    }
   };
 
-  const handleGoogleLogin = () => {
-    toast("Google login coming soon", {
-      description: "Connect a real OAuth provider to enable this.",
-    });
+  const handleGoogleLogin = async () => {
+    setError(null);
+    const result = await loginWithGoogle();
+    if (result.success) {
+      const username = deriveUsername(email || "user");
+      if (redirect) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        void navigate({ to: redirect as any });
+      } else {
+        void navigate({ to: "/", replace: true });
+      }
+    } else if (result.error) {
+      setError(result.error);
+    }
   };
 
   return (

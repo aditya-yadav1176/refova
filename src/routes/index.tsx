@@ -1,10 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, BadgeCheck, Copy, Gift, Search, Sparkles } from "lucide-react";
 import { SiteHeader } from "@/components/site/site-header";
 import { SiteFooter } from "@/components/site/site-footer";
 import { ReferralCard } from "@/components/referral/referral-card";
 import { BenefitBadge } from "@/components/referral/badges";
-import { categories, referrals } from "@/lib/referrals";
+import { categories, mapApiReferral, type ApiReferral } from "@/lib/referrals";
+import { apiGet } from "@/lib/api";
 import { Reveal } from "@/components/site/reveal";
 import { getRequestOrigin } from "@/lib/origin.functions";
 
@@ -76,12 +78,29 @@ const heroCards = [
   },
 ];
 
-const featured = referrals.slice(0, 1);
-const medium = referrals.slice(1, 3);
-const compact = referrals.slice(3, 7);
-const trending = [...referrals].sort((a, b) => b.popularity - a.popularity).slice(0, 6);
-
 function Home() {
+  const { data: realReferrals = [] } = useQuery({
+    queryKey: ["home-all-referrals"],
+    queryFn: async () => {
+      try {
+        const res = await apiGet<{ success: boolean; data: ApiReferral[] }>("/referrals?limit=20");
+        if (res?.data && Array.isArray(res.data)) {
+          return res.data.map(mapApiReferral);
+        }
+      } catch {
+        // ignore
+      }
+      return [];
+    },
+    staleTime: 5_000,
+    refetchOnWindowFocus: true,
+  });
+
+  const featured = realReferrals.slice(0, 1);
+  const medium = realReferrals.slice(1, 3);
+  const compact = realReferrals.slice(3, 7);
+  const displayTrending = realReferrals.slice(0, 6);
+
   return (
     <div className="min-h-screen">
       <SiteHeader />
@@ -214,37 +233,41 @@ function Home() {
         </section>
 
         {/* Featured */}
-        <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
-          <SectionHead
-            eyebrow="Featured right now"
-            title="Hand-picked referrals worth your click"
-            action={{ to: "/discover", label: "See all" }}
-          />
-          <div className="mt-10 grid auto-rows-fr items-stretch gap-5 lg:grid-cols-3">
-            <Reveal className="flex lg:col-span-2 lg:row-span-2">
-              {featured.map((r) => (
-                <ReferralCard
-                  key={r.id}
-                  referral={r}
-                  variant="featured"
-                  className="h-full w-full"
-                />
+        {featured.length > 0 && (
+          <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+            <SectionHead
+              eyebrow="Featured right now"
+              title="Hand-picked referrals worth your click"
+              action={{ to: "/discover", label: "See all" }}
+            />
+            <div className="mt-10 grid auto-rows-fr items-stretch gap-5 lg:grid-cols-3">
+              <Reveal className="flex lg:col-span-2 lg:row-span-2">
+                {featured.map((r) => (
+                  <ReferralCard
+                    key={r.id}
+                    referral={r}
+                    variant="featured"
+                    className="h-full w-full"
+                  />
+                ))}
+              </Reveal>
+              {medium.map((r, i) => (
+                <Reveal key={r.id} delay={80 + i * 80} className="flex">
+                  <ReferralCard referral={r} className="w-full" />
+                </Reveal>
               ))}
-            </Reveal>
-            {medium.map((r, i) => (
-              <Reveal key={r.id} delay={80 + i * 80} className="flex">
-                <ReferralCard referral={r} className="w-full" />
-              </Reveal>
-            ))}
-          </div>
-          <div className="mt-5 grid auto-rows-fr gap-5 sm:grid-cols-2 xl:grid-cols-4">
-            {compact.map((r, i) => (
-              <Reveal key={r.id} delay={i * 70} className="flex">
-                <ReferralCard referral={r} variant="compact" className="w-full" />
-              </Reveal>
-            ))}
-          </div>
-        </section>
+            </div>
+            {compact.length > 0 && (
+              <div className="mt-5 grid auto-rows-fr gap-5 sm:grid-cols-2 xl:grid-cols-4">
+                {compact.map((r, i) => (
+                  <Reveal key={r.id} delay={i * 70} className="flex">
+                    <ReferralCard referral={r} variant="compact" className="w-full" />
+                  </Reveal>
+                ))}
+              </div>
+            )}
+          </section>
+        )}
 
         {/* Categories */}
         <section id="categories" className="border-y border-border bg-card py-20">
@@ -319,20 +342,22 @@ function Home() {
         </section>
 
         {/* Trending */}
-        <section className="mx-auto max-w-7xl px-4 pb-20 sm:px-6 lg:px-8">
-          <SectionHead
-            eyebrow="Trending this week"
-            title="What everyone is copying"
-            action={{ to: "/discover", label: "Browse all" }}
-          />
-          <div className="mt-10 flex flex-col gap-4">
-            {trending.map((r, i) => (
-              <Reveal key={r.id} delay={Math.min(i, 4) * 60}>
-                <ReferralCard referral={r} variant="list" />
-              </Reveal>
-            ))}
-          </div>
-        </section>
+        {displayTrending.length > 0 && (
+          <section className="mx-auto max-w-7xl px-4 pb-20 sm:px-6 lg:px-8">
+            <SectionHead
+              eyebrow="Trending this week"
+              title="What everyone is copying"
+              action={{ to: "/discover", label: "Browse all" }}
+            />
+            <div className="mt-10 flex flex-col gap-4">
+              {displayTrending.map((r, i) => (
+                <Reveal key={r.id} delay={Math.min(i, 4) * 60}>
+                  <ReferralCard referral={r} variant="list" />
+                </Reveal>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* CTA */}
         <section className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8">

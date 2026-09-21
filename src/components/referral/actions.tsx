@@ -1,8 +1,9 @@
 import { useState } from "react";
+import { useNavigate } from "@tanstack/react-router";
 import { Bookmark, Check, Copy } from "lucide-react";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
 import { useSaved } from "@/lib/saved";
+import { cn } from "@/lib/utils";
 
 export function CopyButton({
   code,
@@ -21,7 +22,7 @@ export function CopyButton({
     try {
       await navigator.clipboard.writeText(code);
     } catch {
-      /* clipboard blocked — still show the prototype success state */
+      /* clipboard blocked */
     }
     setCopied(true);
     toast.success(`${service} referral copied`, {
@@ -56,6 +57,56 @@ export function CopyButton({
   );
 }
 
+export function CopyCodeButton({
+  code,
+  service,
+  benefit,
+  className,
+}: {
+  code: string;
+  service: string;
+  benefit?: string;
+  className?: string;
+}) {
+  const [copied, setCopied] = useState(false);
+
+  return (
+    <button
+      type="button"
+      onClick={async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        try {
+          await navigator.clipboard.writeText(code);
+        } catch {
+          /* ignore */
+        }
+        setCopied(true);
+        toast.success(`Copied ${service} code`, {
+          description: benefit ? `${benefit} ready to paste` : undefined,
+        });
+        window.setTimeout(() => setCopied(false), 2000);
+      }}
+      className={cn(
+        "press inline-flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-2 text-xs font-semibold uppercase tracking-wider transition-colors duration-200 hover:border-foreground/30 hover:bg-secondary",
+        copied && "border-leaf/40 bg-leaf-soft text-leaf",
+        className,
+      )}
+    >
+      {copied ? (
+        <>
+          <Check className="size-3.5" /> Copied
+        </>
+      ) : (
+        <>
+          <Copy className="size-3.5" /> Copy
+        </>
+      )}
+    </button>
+  );
+}
+
+
 export function SaveButton({
   id,
   service,
@@ -67,7 +118,8 @@ export function SaveButton({
   className?: string;
   withLabel?: boolean;
 }) {
-  const { isSaved, toggle } = useSaved();
+  const { isSaved, toggle, canSave } = useSaved();
+  const navigate = useNavigate();
   const active = isSaved(id);
 
   return (
@@ -77,6 +129,16 @@ export function SaveButton({
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
+        if (!canSave) {
+          toast.error("Please log in to save referrals", {
+            description: "Log in or sign up to bookmark referrals to your profile.",
+            action: {
+              label: "Log in",
+              onClick: () => navigate({ to: "/login" }),
+            },
+          });
+          return;
+        }
         const now = toggle(id);
         toast(now ? `Saved ${service}` : `Removed ${service}`, {
           description: now ? "Find it under Saved on your profile." : undefined,

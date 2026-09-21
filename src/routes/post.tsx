@@ -7,6 +7,8 @@ import { SiteFooter } from "@/components/site/site-footer";
 import { BenefitBadge, CategoryChip, ServiceMark } from "@/components/referral/badges";
 import { categories, type CategorySlug } from "@/lib/referrals";
 import { parseReferralContent } from "@/lib/referral-parser";
+import { apiPostAuth } from "@/lib/api";
+import { useAuth } from "@/lib/auth";
 import { getRequestOrigin } from "@/lib/origin.functions";
 import { cn } from "@/lib/utils";
 
@@ -73,6 +75,9 @@ function PostPage() {
   const setField = <K extends keyof ReviewForm>(k: K, v: ReviewForm[K]) =>
     setForm((f) => ({ ...f, [k]: v }));
 
+  const { user } = useAuth();
+  const [isPublishing, setIsPublishing] = useState(false);
+
   // ── Step 1 → Step 2: parse the pasted text ──────────────────────────────────
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -100,10 +105,44 @@ function PostPage() {
   };
 
   // ── Step 2 → Step 3: publish ────────────────────────────────────────────────
-  const handlePublish = (e: React.FormEvent) => {
+  const handlePublish = async (e: React.FormEvent) => {
     e.preventDefault();
-    setStep("published");
-    toast.success("Referral published");
+    if (!user) {
+      toast.error("Please sign in to publish your referral.");
+      return;
+    }
+    if (!form.service.trim() || !form.code.trim() || !form.benefit.trim()) {
+      toast.error("Please fill in the required fields (service, code, and benefit).");
+      return;
+    }
+
+    setIsPublishing(true);
+    try {
+      const conditions = form.conditionsText
+        .split("\n")
+        .map((s) => s.trim())
+        .filter(Boolean);
+
+      const isUrl = /^https?:\/\//i.test(form.code.trim());
+
+      await apiPostAuth("/referrals", {
+        brandName: form.service.trim(),
+        categoryId: form.category,
+        benefitHeadline: form.benefit.trim(),
+        description: form.summary.trim() || `${form.service.trim()} referral: ${form.benefit.trim()}`,
+        referralCode: isUrl ? "" : form.code.trim(),
+        referralUrl: isUrl ? form.code.trim() : undefined,
+        conditions: conditions.length > 0 ? conditions : undefined,
+      });
+
+      setStep("published");
+      toast.success("Referral published successfully!");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to publish referral";
+      toast.error(msg);
+    } finally {
+      setIsPublishing(false);
+    }
   };
 
   // ── Reset to step 1 ─────────────────────────────────────────────────────────
@@ -283,24 +322,30 @@ function PostPage() {
               <div className="flex flex-wrap items-center gap-3">
                 <button
                   type="submit"
-                  className="press rounded-xl border-2 border-foreground bg-primary px-6 py-3.5 text-base font-semibold text-primary-foreground"
-                  style={{ boxShadow: "4px 4px 0 var(--ink)" }}
+                  disabled={isPublishing}
+                  className="press rounded-xl border-2 border-foreground bg-primary px-6 py-3.5 text-base font-semibold text-primary-foreground disabled:opacity-60 disabled:cursor-not-allowed"
+                  style={{ boxShadow: isPublishing ? "none" : "4px 4px 0 var(--ink)" }}
                 >
-                  Publish Referral
+                  {isPublishing ? (
+                    <span className="flex items-center gap-2">
+                      <span className="inline-block size-4 animate-spin rounded-full border-2 border-primary-foreground/30 border-t-primary-foreground" />
+                      Publishing…
+                    </span>
+                  ) : (
+                    "Publish Referral"
+                  )}
                 </button>
                 <button
                   type="button"
+                  disabled={isPublishing}
                   onClick={() => setStep("paste")}
-                  className="press rounded-xl border border-border bg-card px-5 py-3.5 text-base font-semibold hover:bg-secondary"
+                  className="press rounded-xl border border-border bg-card px-5 py-3.5 text-base font-semibold hover:bg-secondary disabled:opacity-50"
                 >
                   <span className="flex items-center gap-2">
                     <Pencil className="size-4" />
                     Edit paste
                   </span>
                 </button>
-                <span className="text-xs text-muted-foreground">
-                  Prototype — submission is simulated.
-                </span>
               </div>
             </form>
 

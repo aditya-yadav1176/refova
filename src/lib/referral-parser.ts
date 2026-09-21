@@ -1,4 +1,5 @@
 import type { BenefitType, CategorySlug } from "@/lib/referrals";
+import { apiPostAuth } from "@/lib/api";
 
 // ─── Output type ─────────────────────────────────────────────────────────────
 
@@ -16,34 +17,84 @@ export type ParsedReferral = {
   tags: string[];
 };
 
+/** Shape returned by backend /api/referrals/parse */
+type BackendParsed = {
+  brandName: string;
+  benefitHeadline: string;
+  description: string;
+  category: CategorySlug;
+  referralCode: string;
+  referralUrl: string;
+  conditions: string[];
+  expiryDate: string | null;
+};
+
+/** Map the backend response to the frontend ParsedReferral shape. */
+function mapBackendResponse(b: BackendParsed): ParsedReferral {
+  const service = b.brandName || "Referral";
+  const words = service.trim().split(/\s+/);
+  const initials = words.map((w) => w[0] ?? "").join("").toUpperCase().slice(0, 2) || "??";
+  const isLink = !!b.referralUrl;
+  const code = isLink ? b.referralUrl : (b.referralCode || "");
+
+  // Map benefitHeadline to BenefitType
+  let benefitType: BenefitType = "reward";
+  const h = b.benefitHeadline.toLowerCase();
+  if (h.includes("cashback")) benefitType = "cashback";
+  else if (h.includes("% off") || h.includes("discount")) benefitType = "discount";
+  else if (h.includes("free month") || h.includes("trial")) benefitType = "free-month";
+  else if (h.includes("credit")) benefitType = "credits";
+
+  // Tags
+  const tags: string[] = [];
+  if (service !== "Referral") tags.push(service.toLowerCase().replace(/\s+/g, ""));
+  if (b.category) tags.push(b.category);
+  if (benefitType !== "reward") tags.push(benefitType);
+
+  const summary = b.description || `Use this ${service} referral to get ${b.benefitHeadline.toLowerCase()}.`;
+
+  return {
+    service,
+    initials,
+    code,
+    isLink,
+    benefit: b.benefitHeadline,
+    benefitType,
+    category: b.category,
+    summary,
+    conditions: b.conditions || [],
+    expires: b.expiryDate || "",
+    tags: tags.slice(0, 4),
+  };
+}
+
 // ─── PUBLIC API ───────────────────────────────────────────────────────────────
 //
-// This is the ONLY function the backend developer needs to replace.
-//
-// Interface contract (preserve when swapping to a real backend):
-//   • Receives: raw string — freeform user input (paste or typed)
-//   • Returns:  Promise<ParsedReferral>
-//   • Throws:   Error on failure (message is shown inline to the user)
-//
-// To connect a backend AI / parser service, replace the function body with:
-//
-//   const res = await fetch("/api/parse-referral", {
-//     method: "POST",
-//     headers: { "Content-Type": "application/json" },
-//     body: JSON.stringify({ text: raw }),
-//   });
-//   if (!res.ok) throw new Error(await res.text());
-//   return res.json() as ParsedReferral;
+// Calls the backend API when a user ID token is available.
+// Falls back to the local rule-based mock when the backend is unreachable.
 //
 export async function parseReferralContent(raw: string): Promise<ParsedReferral> {
   if (!raw.trim()) throw new Error("Please paste a referral before continuing.");
-  // Simulate AI / network processing latency
-  await new Promise((r) => setTimeout(r, 700));
+
+  try {
+    const resp = await apiPostAuth<{ success: boolean; data: BackendParsed }>(
+      "/referrals/parse",
+      { text: raw.trim() },
+    );
+    if (resp.success && resp.data) {
+      return mapBackendResponse(resp.data);
+    }
+  } catch {
+    // Backend unavailable — silently fall back to local parser
+  }
+
+  // Fallback: local rule-based mock parser
+  await new Promise((r) => setTimeout(r, 400));
   return mockParse(raw.trim());
 }
 
 // ─── Mock rule-based parser ───────────────────────────────────────────────────
-// Replace parseReferralContent above — do not need to touch anything below.
+// Retained as a fallback when the backend is unavailable.
 // ─────────────────────────────────────────────────────────────────────────────
 
 type BrandEntry = { name: string; category: CategorySlug };

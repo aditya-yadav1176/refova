@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { createFileRoute, notFound, Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, Check, Copy, Eye, Flag, Share2, TrendingUp } from "lucide-react";
 import { toast } from "sonner";
 import { SiteHeader } from "@/components/site/site-header";
@@ -7,13 +8,22 @@ import { SiteFooter } from "@/components/site/site-footer";
 import { BenefitBadge, CategoryChip, ServiceMark, TrustBadge } from "@/components/referral/badges";
 import { SaveButton } from "@/components/referral/actions";
 import { ReferralCard } from "@/components/referral/referral-card";
-import { getReferral, maskCode, similarTo } from "@/lib/referrals";
+import { maskCode, mapApiReferral, type ApiReferral, type Referral } from "@/lib/referrals";
 import { getRequestOrigin } from "@/lib/origin.functions";
 import { cn } from "@/lib/utils";
+import { apiGet, apiPostAuth } from "@/lib/api";
 
 export const Route = createFileRoute("/referral/$id")({
   loader: async ({ params }) => {
-    const referral = getReferral(params.id);
+    let referral: Referral | undefined;
+    try {
+      const resp = await apiGet<{ success: boolean; data: ApiReferral }>(`/referrals/${params.id}`);
+      if (resp && resp.success && resp.data) {
+        referral = mapApiReferral(resp.data);
+      }
+    } catch {
+      // Backend returned 404 or error
+    }
     if (!referral) throw notFound();
     return { referral, origin: await getRequestOrigin() };
   },
@@ -49,11 +59,36 @@ function ReferralDetail() {
   const { referral: r } = Route.useLoaderData();
   const [revealed, setRevealed] = useState(false);
   const [copied, setCopied] = useState(false);
-  const similar = similarTo(r);
+
+  const { data: similar = [] } = useQuery({
+    queryKey: ["similar-referrals", r.category, r.id],
+    queryFn: async () => {
+      try {
+        const resp = await apiGet<{ success: boolean; data: ApiReferral[] }>(`/referrals?category=${r.category}&limit=4`);
+        if (resp && resp.success && Array.isArray(resp.data)) {
+          return resp.data.map(mapApiReferral).filter((x) => x.id !== r.id).slice(0, 3);
+        }
+      } catch {
+        // ignore
+      }
+      return [] as Referral[];
+    },
+    staleTime: 30_000,
+  });
 
   const copy = async () => {
+    // Call backend to track copy and get the real code
+    let codeToUse = r.code;
     try {
-      await navigator.clipboard.writeText(r.code);
+      const resp = await apiPostAuth<{ success: boolean; data: { referralCode: string; referralUrl: string } }>(`/referrals/${r.id}/copy`);
+      if (resp.success && resp.data) {
+        codeToUse = resp.data.referralUrl || resp.data.referralCode || r.code;
+      }
+    } catch {
+      // Backend unavailable — use the code already loaded
+    }
+    try {
+      await navigator.clipboard.writeText(codeToUse);
     } catch {
       /* clipboard blocked in preview */
     }
@@ -61,6 +96,15 @@ function ReferralDetail() {
     setCopied(true);
     toast.success("Referral copied to clipboard", { description: `${r.service} · ${r.benefit}` });
     window.setTimeout(() => setCopied(false), 2200);
+  };
+
+  const report = async () => {
+    try {
+      await apiPostAuth(`/referrals/${r.id}/report`, { reason: "incorrect_info", description: "" });
+      toast("Reported for review", { description: "Thanks — a moderator will take a look." });
+    } catch {
+      toast("Reported for review", { description: "Thanks — a moderator will take a look." });
+    }
   };
 
   return (
@@ -159,25 +203,23 @@ function ReferralDetail() {
               </div>
               <button
                 type="button"
-                onClick={() =>
-                  toast("Reported for review", {
-                    description: "Thanks — a moderator will take a look.",
-                  })
-                }
+                onClick={report}
                 className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-destructive"
               >
                 <Flag className="size-4" /> Report referral
               </button>
             </div>
 
-            <section className="mt-14">
-              <h2 className="text-2xl font-bold">Similar referrals</h2>
-              <div className="mt-5 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-                {similar.map((s) => (
-                  <ReferralCard key={s.id} referral={s} />
-                ))}
-              </div>
-            </section>
+            {similar.length > 0 && (
+              <section className="mt-14">
+                <h2 className="text-2xl font-bold">Similar referrals</h2>
+                <div className="mt-5 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+                  {similar.map((s: Referral) => (
+                    <ReferralCard key={s.id} referral={s} />
+                  ))}
+                </div>
+              </section>
+            )}
           </div>
 
           <aside className="lg:sticky lg:top-24 lg:self-start">

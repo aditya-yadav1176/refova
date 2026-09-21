@@ -49,7 +49,7 @@ function CategoryPage() {
           <span className="text-3xl">{category.emoji}</span>
           <h1 className="mt-3 text-4xl font-bold md:text-5xl">{category.name}</h1>
           <p className="mt-2 max-w-xl text-base text-foreground/70">{category.blurb}</p>
-          <p className="mt-4 text-sm font-semibold">{category.count} referrals available</p>
+          <p className="mt-4 text-sm font-semibold">Live community referrals</p>
         </div>
 
         <div className="mt-10">

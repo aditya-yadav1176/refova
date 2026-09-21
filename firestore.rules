@@ -1,0 +1,64 @@
+﻿rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helpers ────────────────────────────────────────────────────────────────
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isAuthenticated() && request.auth.uid == uid;
+    }
+
+    // NOTE: Role checks are enforced by the backend (Firebase Admin SDK bypasses rules).
+    // These rules act as a safety net against direct client writes.
+
+    // ── Users ──────────────────────────────────────────────────────────────────
+    match /users/{uid} {
+      // Users can read their own profile; public reads are handled via backend API
+      allow read: if isOwner(uid);
+      // Only the backend (Admin SDK) can create/update user docs
+      allow write: if false;
+    }
+
+    // ── Referrals ─────────────────────────────────────────────────────────────
+    match /referrals/{referralId} {
+      // Allow public read of published referrals
+      allow read: if resource.data.status == 'published';
+      // No direct client writes — all writes via backend API
+      allow write: if false;
+    }
+
+    // ── Categories ────────────────────────────────────────────────────────────
+    match /categories/{categoryId} {
+      // Public read of active categories
+      allow read: if resource.data.isActive == true;
+      allow write: if false;
+    }
+
+    // ── Reports ───────────────────────────────────────────────────────────────
+    match /reports/{reportId} {
+      // Only the owner can read their own reports
+      allow read: if isAuthenticated() && resource.data.reportedBy == request.auth.uid;
+      allow write: if false;
+    }
+
+    // ── Counters ──────────────────────────────────────────────────────────────
+    match /counters/{docId} {
+      allow read: if true; // Public stats are fine to read
+      allow write: if false;
+    }
+
+    // ── Audit Logs ────────────────────────────────────────────────────────────
+    match /auditLogs/{logId} {
+      allow read, write: if false; // Backend only
+    }
+
+    // ── Deny all other access ─────────────────────────────────────────────────
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

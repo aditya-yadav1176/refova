@@ -1,13 +1,17 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { LayoutGrid, Rows3, Search, SlidersHorizontal, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   benefitTypes,
   categories,
-  referrals,
+  mapApiReferral,
+  type ApiReferral,
   type BenefitType,
   type CategorySlug,
+  type Referral,
 } from "@/lib/referrals";
+import { apiGet } from "@/lib/api";
 import { ReferralCard } from "./referral-card";
 
 const suggestions = [
@@ -31,51 +35,73 @@ export function ResultsExplorer({
   showSearch?: boolean;
 }) {
   const [query, setQuery] = useState(initialQuery);
+  const [debouncedQuery, setDebouncedQuery] = useState(initialQuery);
   const [category, setCategory] = useState<CategorySlug | "all">(lockedCategory ?? "all");
   const [benefit, setBenefit] = useState<BenefitType | "all">("all");
   const [verifiedOnly, setVerifiedOnly] = useState(false);
   const [sort, setSort] = useState<Sort>("newest");
   const [view, setView] = useState<"grid" | "list">("grid");
 
-  const results = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    const list = referrals.filter((r) => {
-      if (lockedCategory && r.category !== lockedCategory) return false;
-      if (!lockedCategory && category !== "all" && r.category !== category) return false;
-      if (benefit !== "all" && r.benefitType !== benefit) return false;
-      if (verifiedOnly && !r.trust.includes("verified")) return false;
-      if (!q) return true;
-      return (
-        r.service.toLowerCase().includes(q) ||
-        r.benefit.toLowerCase().includes(q) ||
-        r.summary.toLowerCase().includes(q) ||
-        r.category.includes(q) ||
-        r.tags.some((t) => t.toLowerCase().includes(q))
-      );
-    });
-    return sort === "popular"
-      ? list.sort((a, b) => b.popularity - a.popularity)
-      : list.sort((a, b) => b.copies / 5000 + (b.trust.length - a.trust.length) - a.copies / 5000);
-  }, [query, category, benefit, verifiedOnly, sort, lockedCategory]);
+  // Debounce search query by 300ms
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedQuery(query), 300);
+    return () => clearTimeout(t);
+  }, [query]);
 
-  const signature = `${query}|${category}|${benefit}|${verifiedOnly}|${sort}`;
+  // Build API query string
+  const apiPath = useMemo(() => {
+    const params = new URLSearchParams();
+    if (debouncedQuery) params.set("search", debouncedQuery);
+    if (lockedCategory) params.set("category", lockedCategory);
+    else if (category !== "all") params.set("category", category);
+    if (sort) params.set("sort", sort === "newest" ? "latest" : "popular");
+    params.set("limit", "100");
+    return `/referrals?${params.toString()}`;
+  }, [debouncedQuery, category, sort, lockedCategory]);
+
+  // Fetch only from real API
+  const { data: apiData = [], isLoading } = useQuery({
+    queryKey: ["referrals", apiPath],
+    queryFn: async () => {
+      try {
+        const resp = await apiGet<{ success: boolean; data: ApiReferral[] }>(apiPath);
+        if (resp && resp.success && Array.isArray(resp.data)) {
+          return resp.data.map(mapApiReferral);
+        }
+      } catch (err) {
+        console.error("Failed to load referrals from backend:", err);
+      }
+      return [] as Referral[];
+    },
+    placeholderData: (prev) => prev,
+    staleTime: 5_000,
+    refetchOnWindowFocus: true,
+  });
+
+  const results = useMemo(() => {
+    let list = apiData;
+    if (benefit !== "all") list = list.filter((r) => r.benefitType === benefit);
+    if (verifiedOnly) list = list.filter((r) => r.trust.includes("verified"));
+    return list;
+  }, [apiData, benefit, verifiedOnly]);
+
   const [shown, setShown] = useState(results);
   const [phase, setPhase] = useState<"in" | "out">("in");
-  const firstRun = useRef(true);
 
+  // Keep shown synchronized whenever results changes (API resolves, filters toggle, search updates)
   useEffect(() => {
-    if (firstRun.current) {
-      firstRun.current = false;
+    if (shown.length === 0 && results.length > 0) {
+      setShown(results);
+      setPhase("in");
       return;
     }
     setPhase("out");
     const t = setTimeout(() => {
       setShown(results);
       setPhase("in");
-    }, 140);
+    }, 120);
     return () => clearTimeout(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [signature]);
+  }, [results]);
 
   const reset = () => {
     setQuery("");
@@ -172,11 +198,20 @@ export function ResultsExplorer({
         <div>
           <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
             <p className="text-sm text-muted-foreground">
-              <span className="font-semibold text-foreground">{results.length}</span> referrals
-              {query && (
+              {isLoading ? (
+                <span className="inline-flex items-center gap-1.5">
+                  <span className="inline-block size-3.5 animate-spin rounded-full border-2 border-foreground/20 border-t-foreground/60" />
+                  Loading referrals…
+                </span>
+              ) : (
                 <>
-                  {" "}
-                  for <span className="font-semibold text-foreground">“{query}”</span>
+                  <span className="font-semibold text-foreground">{results.length}</span> referrals
+                  {query && (
+                    <>
+                      {" "}
+                      for <span className="font-semibold text-foreground">"{query}"</span>
+                    </>
+                  )}
                 </>
               )}
             </p>
@@ -229,7 +264,28 @@ export function ResultsExplorer({
             </div>
           </div>
 
-          {shown.length === 0 ? (
+          {isLoading && shown.length === 0 ? (
+            <div className="grid auto-rows-fr gap-5 sm:grid-cols-2 xl:grid-cols-3">
+              {[1, 2, 3].map((n) => (
+                <div
+                  key={n}
+                  className="h-56 rounded-2xl border border-foreground/10 bg-card p-6 animate-pulse"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="size-12 rounded-2xl bg-secondary" />
+                    <div className="flex-1 space-y-2">
+                      <div className="h-4 w-1/3 rounded bg-secondary" />
+                      <div className="h-3 w-1/2 rounded bg-secondary" />
+                    </div>
+                  </div>
+                  <div className="mt-6 space-y-2">
+                    <div className="h-4 w-3/4 rounded bg-secondary" />
+                    <div className="h-3 w-full rounded bg-secondary" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : shown.length === 0 ? (
             <div className="results-swap" data-phase={phase}>
               <div className="result-item rounded-2xl border border-dashed border-border bg-card p-12 text-center">
                 <div className="mx-auto grid size-14 place-items-center rounded-2xl bg-secondary text-2xl">
