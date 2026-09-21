@@ -234,16 +234,24 @@ export async function parseReferralContent(raw: string): Promise<ParsedReferral>
 
 ---
 
-## Available Scripts
+## Workspace Scripts
 
-| Command             | Purpose                                                              |
-| :------------------ | :------------------------------------------------------------------- |
-| `npm run dev`       | Starts the Vite development server with Hot Module Replacement (HMR) |
-| `npm run build`     | Compiles the production build for client and server bundles          |
-| `npm run build:dev` | Compiles a development-mode production build for inspection          |
-| `npm run preview`   | Runs a local server to preview the production build                  |
-| `npm run lint`      | Runs ESLint across the codebase                                      |
-| `npm run format`    | Formats all code files using Prettier                                |
+| Command | Purpose |
+| :--- | :--- |
+| `npm run dev:frontend` | Starts the Frontend development server |
+| `npm run dev:backend` | Starts the Backend Express development server |
+| `npm run build:frontend` | Compiles the production build for frontend |
+| `npm run test:backend` | Runs the full backend test suite |
+
+### Frontend (`cd frontend`)
+- `npm run dev`: Start Vite dev server on port `8080`
+- `npm run build`: Production bundle compilation
+- `npm run lint`: Linting with ESLint
+
+### Backend (`cd backend`)
+- `npm run dev`: Start Express API server with file watching on port `10000`
+- `npm test`: Run Jest test suite
+- `npm start`: Production server launch
 
 ---
 

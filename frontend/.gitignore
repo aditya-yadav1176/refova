@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+
+# Build & cache
+.output/
+.vite/
+.tanstack/
+.wrangler/
+.nitro/
+.vinxi/
+dist/
+dist-ssr/
+
+# Environment files
+.env
+*.local
+.dev.vars
+!.env.example
+
+# Logs
+*.log
+
+# Editor & OS files
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
