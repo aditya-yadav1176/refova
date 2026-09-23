@@ -85,18 +85,43 @@ interface BackendUserData {
   photoURL?: string | null;
   role?: "user" | "admin";
   trustScore?: number;
+  isCustomDisplayName?: boolean;
 }
 
 /** Convert a backend user object or Firebase user into our AuthUser shape. */
 function mapToAuthUser(fbUser: FirebaseUser, backendUser?: BackendUserData): AuthUser {
-  const name = backendUser?.displayName || fbUser.displayName || deriveUsername(fbUser.email ?? "");
+  const email = fbUser.email ?? "";
+  const emailPrefix = deriveUsername(email);
+
+  // Fallback priority:
+  // 1. Manually customized Refova displayName (backendUser with isCustomDisplayName or custom name)
+  // 2. Firebase/Google displayName (fbUser.displayName)
+  // 3. Backend displayName (if present and not equal to email)
+  // 4. Email username portion
+  // 5. "User"
+  let name = "";
+  if (backendUser?.isCustomDisplayName && backendUser.displayName?.trim()) {
+    name = backendUser.displayName.trim();
+  } else if (fbUser.displayName?.trim()) {
+    name = fbUser.displayName.trim();
+  } else if (
+    backendUser?.displayName?.trim() &&
+    backendUser.displayName.trim().toLowerCase() !== email.toLowerCase()
+  ) {
+    name = backendUser.displayName.trim();
+  } else if (emailPrefix) {
+    name = emailPrefix;
+  } else {
+    name = "User";
+  }
+
   const initials = deriveInitials(name);
   return {
     uid: fbUser.uid,
     name,
-    username: backendUser?.username || deriveUsername(fbUser.email ?? ""),
+    username: backendUser?.username || emailPrefix || "user",
     initials,
-    email: fbUser.email ?? "",
+    email,
     photoURL: backendUser?.photoURL || fbUser.photoURL || null,
     role: backendUser?.role || "user",
     trustScore: backendUser?.trustScore || 0,

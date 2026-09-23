@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowRight, BadgeCheck, Copy, Gift, Search, Sparkles } from "lucide-react";
+import { ArrowRight, BadgeCheck, Copy, Gift, Search } from "lucide-react";
 import { SiteHeader } from "@/components/site/site-header";
 import { SiteFooter } from "@/components/site/site-footer";
 import { ReferralCard } from "@/components/referral/referral-card";
@@ -110,15 +110,9 @@ function Home() {
         <section className="relative overflow-hidden dotted-paper">
           <div className="mx-auto grid max-w-7xl items-center gap-14 px-4 py-16 sm:px-6 lg:grid-cols-[1.05fr_1fr] lg:py-24 lg:px-8">
             <div>
-              <span
-                className="enter inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-semibold"
-                style={{ ["--reveal-delay" as string]: "60ms" }}
-              >
-                <Sparkles className="size-3.5 text-primary" /> 547 referrals posted this month
-              </span>
               <h1
-                className="enter mt-6 font-display text-5xl font-extrabold leading-[0.98] tracking-tight md:text-7xl"
-                style={{ ["--reveal-delay" as string]: "140ms" }}
+                className="enter font-display text-5xl font-extrabold leading-[0.98] tracking-tight md:text-7xl"
+                style={{ ["--reveal-delay" as string]: "100ms" }}
               >
                 Find referrals.
                 <br />

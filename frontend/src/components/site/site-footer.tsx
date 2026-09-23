@@ -73,7 +73,7 @@ export function SiteFooter() {
       </div>
 
       <div className="border-t border-border px-4 py-6 text-center text-xs text-muted-foreground">
-        Refova · prototype concept · All companies, referrals and members shown here are fictional.
+        Developed By Harshit and Aditya
       </div>
     </footer>
   );

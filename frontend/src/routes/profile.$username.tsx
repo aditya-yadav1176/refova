@@ -37,7 +37,7 @@ export const Route = createFileRoute("/profile/$username")({
       username: params.username,
       name: params.username.charAt(0).toUpperCase() + params.username.slice(1),
       initials: params.username.slice(0, 2).toUpperCase(),
-      trustScore: 85,
+      trustScore: 0,
     };
     return { username: params.username, person };
   },
@@ -111,6 +111,8 @@ function ProfilePage() {
   const meta = bios[username] ?? { bio: "Sharing referrals with the community.", since: "2026" };
   const totalCopies = posted.reduce((n, r) => n + r.copies, 0);
 
+  const displayTrustScore = isSelf && currentUser ? (currentUser.trustScore ?? 0) : (posted[0]?.postedBy.trustScore ?? person.trustScore ?? 0);
+
   const list =
     tab === "active"
       ? posted.filter((r) => r.status === "active")
@@ -144,7 +146,7 @@ function ProfilePage() {
           <div className="grid grid-cols-3 gap-3 md:grid-cols-1 md:text-right">
             <Stat value={posted.length} label="Referrals shared" />
             <Stat value={totalCopies.toLocaleString("en-IN")} label="Copies" icon />
-            <Stat value={person.trustScore} label="Trust score" />
+            <Stat value={displayTrustScore} label="Trust score" />
           </div>
         </section>
 

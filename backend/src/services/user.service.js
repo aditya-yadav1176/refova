@@ -1,4 +1,4 @@
-﻿'use strict';
+'use strict';
 
 const { getDb } = require('../config/firebase');
 const logger = require('../utils/logger');
@@ -17,14 +17,31 @@ async function getUserById(uid) {
 async function createUser(uid, data) {
   const db = getDb();
   const now = new Date().toISOString();
+  const email = data.email || '';
+  const emailPrefix = email ? email.split('@')[0] : '';
+  const cleanedDisplayName =
+    typeof data.displayName === 'string' && data.displayName.trim()
+      ? data.displayName.trim()
+      : '';
+
+  // Fallback priority:
+  // 1. Valid displayName (if not equal to the full email)
+  // 2. Email username portion
+  // 3. 'User'
+  const resolvedDisplayName =
+    cleanedDisplayName && cleanedDisplayName.toLowerCase() !== email.toLowerCase()
+      ? cleanedDisplayName
+      : emailPrefix || 'User';
+
   const userData = {
     uid,
-    email: data.email || '',
-    displayName: data.displayName || data.email?.split('@')[0] || 'User',
+    email,
+    displayName: resolvedDisplayName,
     photoURL: data.photoURL || null,
     role: 'user',
     status: 'active',
     bio: '',
+    trustScore: typeof data.trustScore === 'number' ? data.trustScore : 0,
     referralsPosted: 0,
     referralsCopied: 0,
     reportsSubmitted: 0,
@@ -45,11 +62,18 @@ async function updateUser(uid, updates) {
   delete safe.status;
   delete safe.uid;
   delete safe.email;
+  delete safe.trustScore;
   delete safe.referralsPosted;
   delete safe.referralsCopied;
   delete safe.reportsSubmitted;
   delete safe.createdAt;
   safe.updatedAt = new Date().toISOString();
+
+  // If user explicitly customized their displayName, mark it
+  if (typeof safe.displayName === 'string' && safe.displayName.trim()) {
+    safe.displayName = safe.displayName.trim();
+    safe.isCustomDisplayName = true;
+  }
 
   await db.collection('users').doc(uid).update(safe);
   return getUserById(uid);

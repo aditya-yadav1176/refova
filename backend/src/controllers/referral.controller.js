@@ -58,7 +58,12 @@ async function create(req, res, next) {
   try {
     const { errors, value } = validate(referralCreate, req.body);
     if (errors) return sendError(res, 'Validation failed', 400, errors);
-    const referral = await createReferral(req.user.uid, req.user.displayName, value);
+    const referral = await createReferral(
+      req.user.uid,
+      req.user.displayName,
+      value,
+      req.user.trustScore ?? 0
+    );
     return sendSuccess(res, referral, 'Referral created as draft', 201);
   } catch (err) {
     if (err.status === 409) return sendError(res, err.message, 409);
