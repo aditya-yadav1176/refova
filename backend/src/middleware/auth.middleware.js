@@ -1,4 +1,4 @@
-﻿'use strict';
+'use strict';
 
 const { getAuth, getDb } = require('../config/firebase');
 const { sendError } = require('../utils/response');
@@ -31,6 +31,31 @@ async function authenticate(req, res, next) {
     }
 
     const { uid, email } = decodedToken;
+    const isGoogleUser =
+      decodedToken.firebase?.sign_in_provider === 'google.com' ||
+      Boolean(decodedToken.firebase?.identities && decodedToken.firebase.identities['google.com']);
+
+    let tokenDisplayName =
+      typeof decodedToken.name === 'string' && decodedToken.name.trim()
+        ? decodedToken.name.trim()
+        : null;
+    let tokenPhotoURL = decodedToken.picture || null;
+
+    if (isGoogleUser && !tokenDisplayName) {
+      try {
+        const userRecord = await getAuth().getUser(uid);
+        if (userRecord.displayName && userRecord.displayName.trim()) {
+          tokenDisplayName = userRecord.displayName.trim();
+        }
+        if (userRecord.photoURL && !tokenPhotoURL) {
+          tokenPhotoURL = userRecord.photoURL;
+        }
+      } catch (err) {
+        logger.debug({ err: err.message }, 'Failed to fetch user record for Google user');
+      }
+    }
+
+    const emailPrefix = email ? email.split('@')[0] : '';
 
     // Load user document from Firestore
     const db = getDb();
@@ -38,15 +63,22 @@ async function authenticate(req, res, next) {
 
     let userData;
     if (!userDoc.exists) {
-      // Auto-create user doc if not exists (handles race conditions on first login)
+      // Priority for new users:
+      // 1. Google / Firebase verified displayName
+      // 2. Email username portion
+      // 3. 'User'
+      // Never store raw email as displayName
+      const initialDisplayName = tokenDisplayName || emailPrefix || 'User';
+
       userData = {
         uid,
         email: email || '',
-        displayName: decodedToken.name || email?.split('@')[0] || 'User',
-        photoURL: decodedToken.picture || null,
+        displayName: initialDisplayName,
+        photoURL: tokenPhotoURL,
         role: 'user',
         status: 'active',
         bio: '',
+        trustScore: 0,
         referralsPosted: 0,
         referralsCopied: 0,
         reportsSubmitted: 0,
@@ -64,14 +96,53 @@ async function authenticate(req, res, next) {
       await db.collection('users').doc(uid).set(userData);
     } else {
       userData = userDoc.data();
+      if (userData.trustScore === undefined) {
+        userData.trustScore = 0;
+      }
 
       // Check if user is suspended
       if (userData.status === 'suspended') {
         return sendError(res, 'Your account has been suspended. Contact support for help.', 403);
       }
 
-      // Update last login timestamp (non-blocking)
-      db.collection('users').doc(uid).update({ lastLoginAt: new Date().toISOString() }).catch(() => {});
+      const userEmail = email || userData.email || '';
+      const prefix = userEmail ? userEmail.split('@')[0] : '';
+      const currentName = (userData.displayName || '').trim();
+      const isCustom = Boolean(userData.isCustomDisplayName);
+
+      // Identify whether displayName was a legacy auto-populated default (email or email prefix)
+      const isLegacyDefault =
+        !isCustom &&
+        (!currentName ||
+          currentName.toLowerCase() === userEmail.toLowerCase() ||
+          currentName.toLowerCase() === prefix.toLowerCase() ||
+          currentName === 'User');
+
+      const updates = { lastLoginAt: new Date().toISOString() };
+
+      if (isGoogleUser && tokenDisplayName) {
+        if (isLegacyDefault) {
+          updates.displayName = tokenDisplayName;
+          userData.displayName = tokenDisplayName;
+        }
+        if (tokenPhotoURL && (!userData.photoURL || userData.photoURL === '')) {
+          updates.photoURL = tokenPhotoURL;
+          userData.photoURL = tokenPhotoURL;
+        }
+      } else if (isLegacyDefault && currentName.toLowerCase() === userEmail.toLowerCase()) {
+        const fallback = tokenDisplayName || prefix || 'User';
+        updates.displayName = fallback;
+        userData.displayName = fallback;
+      }
+
+      if (Object.keys(updates).length > 1) {
+        updates.updatedAt = new Date().toISOString();
+        userData.updatedAt = updates.updatedAt;
+        await db.collection('users').doc(uid).update(updates);
+      } else {
+        // Update last login timestamp (non-blocking)
+        db.collection('users').doc(uid).update(updates).catch(() => {});
+      }
     }
 
     req.user = userData;

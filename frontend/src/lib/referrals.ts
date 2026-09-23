@@ -170,6 +170,8 @@ export type ApiReferral = {
   imagePath: string | null;
   submittedBy: string;
   submittedByName: string;
+  authorTrustScore?: number;
+  expiryType?: "fixed_date" | "no_expiry_specified" | "unknown" | "expired";
   status: "draft" | "pending" | "published" | "rejected" | "suspended";
   verificationStatus: "unverified" | "verified" | "rejected";
   isFeatured: boolean;
@@ -241,9 +243,27 @@ export function mapApiReferral(r: ApiReferral): Referral {
     : "";
 
   // Active status: published, draft, or pending unless expired or suspended
-  const isExpired = !!r.expiryDate && new Date(r.expiryDate).getTime() < Date.now();
+  const isExpired =
+    (r.expiryType === "fixed_date" || (!r.expiryType && !!r.expiryDate)) &&
+    !!r.expiryDate &&
+    new Date(r.expiryDate).getTime() < Date.now();
   const isActive =
     (r.status === "published" || r.status === "draft" || r.status === "pending") && !isExpired;
+
+  const expiresDisplay =
+    r.expiryType === "fixed_date" && r.expiryDate
+      ? new Date(r.expiryDate).toLocaleDateString("en-IN", {
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+        })
+      : r.expiryDate && (!r.expiryType || r.expiryType === "fixed_date")
+        ? new Date(r.expiryDate).toLocaleDateString("en-IN", {
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+          })
+        : "No expiry specified";
 
   return {
     id: r.id,
@@ -261,22 +281,29 @@ export function mapApiReferral(r: ApiReferral): Referral {
     submittedBy: r.submittedBy,
     postedBy: {
       username: r.submittedBy,
-      name: r.submittedByName || "Member",
-      initials: (r.submittedByName || "M").slice(0, 2).toUpperCase(),
-      trustScore: 85,
+      name:
+        r.submittedByName && r.submittedByName.includes("@") && !r.submittedByName.includes(" ")
+          ? r.submittedByName.split("@")[0]
+          : r.submittedByName || "Member",
+      initials:
+        (r.submittedByName && r.submittedByName.includes("@") && !r.submittedByName.includes(" ")
+          ? r.submittedByName.split("@")[0]
+          : r.submittedByName || "Member"
+        )
+          .trim()
+          .split(/\s+/)
+          .map((w) => w[0] || "")
+          .join("")
+          .toUpperCase()
+          .slice(0, 2) || "M",
+      trustScore: typeof r.authorTrustScore === "number" ? r.authorTrustScore : 0,
     },
     postedAgo,
     postedOn,
     copies: r.copyCount || 0,
     popularity: r.copyCount || 0,
     trust,
-    expires: r.expiryDate
-      ? new Date(r.expiryDate).toLocaleDateString("en-IN", {
-          day: "numeric",
-          month: "short",
-          year: "numeric",
-        })
-      : "",
+    expires: expiresDisplay,
     status: isActive ? "active" : "past",
   };
 }

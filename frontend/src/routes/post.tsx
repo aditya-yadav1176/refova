@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect, useLayoutEffect } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, Check, Pencil, PartyPopper, Sparkles, Wand2 } from "lucide-react";
 import { toast } from "sonner";
@@ -51,6 +51,10 @@ type ReviewForm = {
   summary: string;
   conditionsText: string; // one condition per line; converted to string[] on publish
   expires: string;
+  expiryType: "fixed_date" | "no_expiry_specified" | "unknown" | "expired";
+  expiryDate: string | null;
+  needsReview?: boolean;
+  warnings?: string[];
 };
 
 const EMPTY_FORM: ReviewForm = {
@@ -61,7 +65,73 @@ const EMPTY_FORM: ReviewForm = {
   summary: "",
   conditionsText: "",
   expires: "",
+  expiryType: "no_expiry_specified",
+  expiryDate: null,
+  needsReview: false,
+  warnings: [],
 };
+
+// ─── Auto-resizing Textarea Component ─────────────────────────────────────────
+
+const useIsomorphicLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
+
+function AutoResizeTextarea({
+  value,
+  onChange,
+  placeholder,
+  className,
+  required,
+  minHeight = 100,
+  maxHeight = 300,
+}: {
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  placeholder?: string;
+  className?: string;
+  required?: boolean;
+  minHeight?: number;
+  maxHeight?: number;
+}) {
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+
+  const resize = () => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    const scrollH = el.scrollHeight;
+    if (scrollH > maxHeight) {
+      el.style.height = `${maxHeight}px`;
+      el.style.overflowY = "auto";
+    } else {
+      el.style.height = `${Math.max(minHeight, scrollH)}px`;
+      el.style.overflowY = "hidden";
+    }
+  };
+
+  useIsomorphicLayoutEffect(() => {
+    resize();
+    window.addEventListener("resize", resize);
+    return () => window.removeEventListener("resize", resize);
+  }, [value, minHeight, maxHeight]);
+
+  return (
+    <textarea
+      ref={textareaRef}
+      required={required}
+      value={value}
+      onChange={(e) => {
+        onChange(e);
+        resize();
+      }}
+      placeholder={placeholder}
+      className={className}
+      style={{
+        minHeight: `${minHeight}px`,
+        maxHeight: `${maxHeight}px`,
+      }}
+    />
+  );
+}
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
@@ -95,6 +165,10 @@ function PostPage() {
         summary: p.summary,
         conditionsText: p.conditions.join("\n"),
         expires: p.expires,
+        expiryType: p.expiryType,
+        expiryDate: p.expiryDate,
+        needsReview: p.needsReview,
+        warnings: p.warnings,
       });
       setStep("review");
     } catch (err) {
@@ -125,6 +199,17 @@ function PostPage() {
 
       const isUrl = /^https?:\/\//i.test(form.code.trim());
 
+      let expiryIso: string | undefined = undefined;
+      let expiryType = form.expiryType || "no_expiry_specified";
+
+      if (form.expires.trim()) {
+        const parsedTs = Date.parse(form.expires.trim());
+        if (!isNaN(parsedTs)) {
+          expiryIso = new Date(parsedTs).toISOString().split("T")[0];
+          expiryType = "fixed_date";
+        }
+      }
+
       await apiPostAuth("/referrals", {
         brandName: form.service.trim(),
         categoryId: form.category,
@@ -134,6 +219,8 @@ function PostPage() {
         referralCode: isUrl ? "" : form.code.trim(),
         referralUrl: isUrl ? form.code.trim() : undefined,
         conditions: conditions.length > 0 ? conditions : undefined,
+        expiryType,
+        expiryDate: expiryIso,
       });
 
       setStep("published");
@@ -230,6 +317,20 @@ function PostPage() {
           <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_380px]">
             {/* ── Left: Editable form ── */}
             <form onSubmit={handlePublish} className="space-y-6">
+              {form.warnings && form.warnings.length > 0 && (
+                <div className="rounded-xl border border-amber/30 bg-amber-soft/50 p-4 text-sm">
+                  <div className="flex items-center gap-2 font-semibold text-foreground">
+                    <Sparkles className="size-4 text-amber" />
+                    Please review highlighted details:
+                  </div>
+                  <ul className="mt-1.5 list-inside list-disc space-y-0.5 text-xs text-muted-foreground">
+                    {form.warnings.map((w) => (
+                      <li key={w}>{w}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
               {/* Service + category */}
               <Section title="The basics" step="01">
                 <Field label="Brand / service name" required>
@@ -237,7 +338,7 @@ function PostPage() {
                     required
                     value={form.service}
                     onChange={(e) => setField("service", e.target.value)}
-                    placeholder="e.g. Myntra"
+                    placeholder="e.g. Myntra or MobiKwik"
                     className={inputCls}
                   />
                 </Field>
@@ -273,18 +374,19 @@ function PostPage() {
                     required
                     value={form.benefit}
                     onChange={(e) => setField("benefit", e.target.value)}
-                    placeholder="e.g. ₹500 CASHBACK"
+                    placeholder="e.g. Cashback or ₹500 CASHBACK"
                     className={inputCls}
                   />
                 </Field>
                 <Field label="Description" required>
-                  <textarea
+                  <AutoResizeTextarea
                     required
-                    rows={3}
                     value={form.summary}
                     onChange={(e) => setField("summary", e.target.value)}
                     placeholder="What does the referee get, and how do they claim it?"
-                    className={`${inputCls} resize-none py-3`}
+                    minHeight={100}
+                    maxHeight={300}
+                    className="w-full resize-none rounded-lg border border-border bg-background px-3 py-3 text-sm leading-relaxed outline-none transition-[border-color,box-shadow] focus:ring-2 focus:ring-ring/40"
                   />
                 </Field>
               </Section>
@@ -300,20 +402,40 @@ function PostPage() {
                     className={`${inputCls} font-mono`}
                   />
                 </Field>
-                <Field label="Conditions" hint="One per line.">
+                <Field
+                  label="Conditions"
+                  hint="One per line. Only list conditions explicitly stated in the offer."
+                >
                   <textarea
-                    rows={3}
+                    rows={Math.max(
+                      4,
+                      Math.min(
+                        8,
+                        (form.conditionsText.split("\n").filter(Boolean).length || 1) + 1,
+                      ),
+                    )}
                     value={form.conditionsText}
                     onChange={(e) => setField("conditionsText", e.target.value)}
-                    placeholder={"New users only\nFirst transaction ₹100+"}
-                    className={`${inputCls} resize-none py-3`}
+                    placeholder={"Make any payment to activate\nValid on first transaction"}
+                    className={`${inputCls} min-h-[110px] max-h-[260px] resize-y py-3 font-sans`}
                   />
                 </Field>
-                <Field label="Expiry date">
+                <Field
+                  label="Expiry date"
+                  hint={
+                    form.expires
+                      ? "Format: 30 Sep 2026 or YYYY-MM-DD"
+                      : "Leave blank if this is an ongoing offer without a stated expiration date."
+                  }
+                >
                   <input
                     value={form.expires}
-                    onChange={(e) => setField("expires", e.target.value)}
-                    placeholder="e.g. 31 Dec 2026"
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setField("expires", val);
+                      setField("expiryType", val.trim() ? "fixed_date" : "no_expiry_specified");
+                    }}
+                    placeholder="No expiry specified (ongoing offer)"
                     className={inputCls}
                   />
                 </Field>

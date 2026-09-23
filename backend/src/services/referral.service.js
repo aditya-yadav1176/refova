@@ -12,6 +12,7 @@ const COLLECTION = 'referrals';
 const VALID_STATUSES = ['draft', 'pending', 'published', 'rejected', 'expired', 'suspended'];
 
 function isExpired(referral) {
+  if (referral.expiryType && referral.expiryType !== 'fixed_date') return false;
   if (!referral.expiryDate) return false;
   return new Date(referral.expiryDate) < new Date();
 }
@@ -92,7 +93,7 @@ async function listReferrals({ page = 1, limit = 20, search = '', category = '',
   return { referrals: paginated, total };
 }
 
-async function createReferral(uid, displayName, data) {
+async function createReferral(uid, displayName, data, authorTrustScore = 0) {
   const db = getDb();
   const id = uuidv4();
   const now = new Date().toISOString();
@@ -112,6 +113,12 @@ async function createReferral(uid, displayName, data) {
     }
   }
 
+  const trimmedDisplayName = typeof displayName === 'string' ? displayName.trim() : '';
+  const authorName =
+    trimmedDisplayName && trimmedDisplayName.includes('@') && !trimmedDisplayName.includes(' ')
+      ? (trimmedDisplayName.split('@')[0] || 'Member')
+      : (trimmedDisplayName || 'Member');
+
   const referral = {
     id,
     brandName: data.brandName || '',
@@ -123,11 +130,13 @@ async function createReferral(uid, displayName, data) {
     referralCode: data.referralCode || '',
     referralUrl: data.referralUrl || '',
     conditions: data.conditions || [],
+    expiryType: data.expiryType || (data.expiryDate ? 'fixed_date' : 'no_expiry_specified'),
     expiryDate: data.expiryDate || null,
     imageUrl: data.imageUrl || null,
     imagePath: data.imagePath || null,
     submittedBy: uid,
-    submittedByName: displayName,
+    submittedByName: authorName,
+    authorTrustScore: typeof authorTrustScore === 'number' ? authorTrustScore : 0,
     status: 'published',
     verificationStatus: 'unverified',
     isFeatured: false,

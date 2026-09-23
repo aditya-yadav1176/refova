@@ -1,4 +1,4 @@
-﻿'use strict';
+'use strict';
 
 const Joi = require('joi');
 
@@ -14,6 +14,7 @@ const referralCreate = Joi.object({
   referralCode: Joi.string().trim().max(500).allow('').optional(),
   referralUrl: Joi.string().uri().max(2000).allow('').optional(),
   conditions: Joi.array().items(Joi.string().max(500)).max(10).optional(),
+  expiryType: Joi.string().valid('fixed_date', 'no_expiry_specified', 'unknown', 'expired').optional(),
   expiryDate: Joi.string().isoDate().allow('', null).optional(),
   imageUrl: Joi.string().uri().allow('', null).optional(),
   imagePath: Joi.string().allow('', null).optional(),
@@ -29,6 +30,7 @@ const referralUpdate = Joi.object({
   referralCode: Joi.string().trim().max(500).allow('').optional(),
   referralUrl: Joi.string().uri().max(2000).allow('', null).optional(),
   conditions: Joi.array().items(Joi.string().max(500)).max(10).optional(),
+  expiryType: Joi.string().valid('fixed_date', 'no_expiry_specified', 'unknown', 'expired').optional(),
   expiryDate: Joi.string().isoDate().allow('', null).optional(),
   imageUrl: Joi.string().uri().allow('', null).optional(),
   imagePath: Joi.string().allow('', null).optional(),

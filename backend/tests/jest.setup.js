@@ -1,4 +1,4 @@
-﻿// jest.setup.js — Mock Firebase before any tests run
+// jest.setup.js — Mock Firebase before any tests run
 process.env.NODE_ENV = 'test';
 process.env.PORT = '10001';
 process.env.FRONTEND_URL = 'http://localhost:5173';
@@ -13,6 +13,7 @@ jest.mock('firebase-admin', () => {
   const mockAuth = {
     verifyIdToken: jest.fn(),
     getUserByEmail: jest.fn(),
+    getUser: jest.fn(),
   };
   const mockFirestore = () => {
     const mockDoc = {
