@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect, useLayoutEffect } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, Check, Pencil, PartyPopper, Sparkles, Wand2 } from "lucide-react";
 import { toast } from "sonner";
@@ -70,6 +70,68 @@ const EMPTY_FORM: ReviewForm = {
   needsReview: false,
   warnings: [],
 };
+
+// ─── Auto-resizing Textarea Component ─────────────────────────────────────────
+
+const useIsomorphicLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
+
+function AutoResizeTextarea({
+  value,
+  onChange,
+  placeholder,
+  className,
+  required,
+  minHeight = 100,
+  maxHeight = 300,
+}: {
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  placeholder?: string;
+  className?: string;
+  required?: boolean;
+  minHeight?: number;
+  maxHeight?: number;
+}) {
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+
+  const resize = () => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    const scrollH = el.scrollHeight;
+    if (scrollH > maxHeight) {
+      el.style.height = `${maxHeight}px`;
+      el.style.overflowY = "auto";
+    } else {
+      el.style.height = `${Math.max(minHeight, scrollH)}px`;
+      el.style.overflowY = "hidden";
+    }
+  };
+
+  useIsomorphicLayoutEffect(() => {
+    resize();
+    window.addEventListener("resize", resize);
+    return () => window.removeEventListener("resize", resize);
+  }, [value, minHeight, maxHeight]);
+
+  return (
+    <textarea
+      ref={textareaRef}
+      required={required}
+      value={value}
+      onChange={(e) => {
+        onChange(e);
+        resize();
+      }}
+      placeholder={placeholder}
+      className={className}
+      style={{
+        minHeight: `${minHeight}px`,
+        maxHeight: `${maxHeight}px`,
+      }}
+    />
+  );
+}
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
@@ -316,13 +378,14 @@ function PostPage() {
                   />
                 </Field>
                 <Field label="Description" required>
-                  <textarea
+                  <AutoResizeTextarea
                     required
-                    rows={3}
                     value={form.summary}
                     onChange={(e) => setField("summary", e.target.value)}
                     placeholder="What does the referee get, and how do they claim it?"
-                    className={`${inputCls} resize-none py-3`}
+                    minHeight={100}
+                    maxHeight={300}
+                    className="w-full resize-none rounded-lg border border-border bg-background px-3 py-3 text-sm leading-relaxed outline-none transition-[border-color,box-shadow] focus:ring-2 focus:ring-ring/40"
                   />
                 </Field>
               </Section>
