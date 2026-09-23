@@ -11,7 +11,9 @@
 
 import { auth } from "@/lib/firebase";
 
-const API_BASE = ((import.meta.env["VITE_API_URL"] as string | undefined) || "http://localhost:10000").replace(/\/$/, "");
+const API_BASE = (
+  (import.meta.env["VITE_API_URL"] as string | undefined) || "http://localhost:10000"
+).replace(/\/$/, "");
 
 // ─── Token helper ─────────────────────────────────────────────────────────────
 
@@ -63,7 +65,8 @@ async function request<T = unknown>(path: string, options: ApiOptions = {}): Pro
   }
 
   if (!res.ok) {
-    const msg = (data as { message?: string })?.message || `Request failed with status ${res.status}`;
+    const msg =
+      (data as { message?: string })?.message || `Request failed with status ${res.status}`;
     const err = new Error(msg) as Error & { status: number; data: unknown };
     err.status = res.status;
     err.data = data;
@@ -75,34 +78,52 @@ async function request<T = unknown>(path: string, options: ApiOptions = {}): Pro
 
 // ─── Exported helpers ─────────────────────────────────────────────────────────
 
-export async function apiGet<T = unknown>(path: string, token?: string | null | undefined): Promise<T> {
+export async function apiGet<T = unknown>(
+  path: string,
+  token?: string | null | undefined,
+): Promise<T> {
   const opts: ApiOptions = { method: "GET" };
   if (token !== undefined) opts.token = token;
   return request<T>(path, opts);
 }
 
-export async function apiPost<T = unknown>(path: string, body?: unknown, token?: string | null | undefined): Promise<T> {
+export async function apiPost<T = unknown>(
+  path: string,
+  body?: unknown,
+  token?: string | null | undefined,
+): Promise<T> {
   const opts: ApiOptions = { method: "POST" };
   if (body !== undefined) opts.body = body;
   if (token !== undefined) opts.token = token;
   return request<T>(path, opts);
 }
 
-export async function apiPut<T = unknown>(path: string, body?: unknown, token?: string | null | undefined): Promise<T> {
+export async function apiPut<T = unknown>(
+  path: string,
+  body?: unknown,
+  token?: string | null | undefined,
+): Promise<T> {
   const opts: ApiOptions = { method: "PUT" };
   if (body !== undefined) opts.body = body;
   if (token !== undefined) opts.token = token;
   return request<T>(path, opts);
 }
 
-export async function apiPatch<T = unknown>(path: string, body?: unknown, token?: string | null | undefined): Promise<T> {
+export async function apiPatch<T = unknown>(
+  path: string,
+  body?: unknown,
+  token?: string | null | undefined,
+): Promise<T> {
   const opts: ApiOptions = { method: "PATCH" };
   if (body !== undefined) opts.body = body;
   if (token !== undefined) opts.token = token;
   return request<T>(path, opts);
 }
 
-export async function apiDelete<T = unknown>(path: string, token?: string | null | undefined): Promise<T> {
+export async function apiDelete<T = unknown>(
+  path: string,
+  token?: string | null | undefined,
+): Promise<T> {
   const opts: ApiOptions = { method: "DELETE" };
   if (token !== undefined) opts.token = token;
   return request<T>(path, opts);

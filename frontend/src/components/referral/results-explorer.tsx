@@ -87,16 +87,19 @@ export function ResultsExplorer({
 
   const [shown, setShown] = useState(results);
   const [phase, setPhase] = useState<"in" | "out">("in");
+  const shownCountRef = useRef(results.length);
 
   // Keep shown synchronized whenever results changes (API resolves, filters toggle, search updates)
   useEffect(() => {
-    if (shown.length === 0 && results.length > 0) {
+    if (shownCountRef.current === 0 && results.length > 0) {
+      shownCountRef.current = results.length;
       setShown(results);
       setPhase("in");
       return;
     }
     setPhase("out");
     const t = setTimeout(() => {
+      shownCountRef.current = results.length;
       setShown(results);
       setPhase("in");
     }, 120);

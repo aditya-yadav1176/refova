@@ -1,17 +1,19 @@
-﻿'use strict';
+'use strict';
 
 /**
  * notification.service.js — Placeholder for future notification system.
  * Replace stubs with real email/push notification logic.
  */
 
+const logger = require('../utils/logger');
+
 async function notifyReferralApproved(uid, referralId) {
   // TODO: Send email via SendGrid/Resend when ready
-  console.log(`[notification] Referral ${referralId} approved — notify user ${uid}`);
+  logger.info({ uid, referralId }, 'Referral approved notification');
 }
 
 async function notifyReferralRejected(uid, referralId, reason) {
-  console.log(`[notification] Referral ${referralId} rejected — notify user ${uid}: ${reason}`);
+  logger.info({ uid, referralId, reason }, 'Referral rejected notification');
 }
 
 async function notifyReferralCopied(ownerUid, referralId) {

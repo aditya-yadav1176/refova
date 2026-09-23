@@ -358,26 +358,6 @@ function Home() {
             </div>
           </section>
         )}
-
-        {/* CTA */}
-        <section className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8">
-          <Reveal className="relative overflow-hidden rounded-3xl border-2 border-foreground bg-foreground px-8 py-16 text-center text-background">
-            <div className="pointer-events-none absolute -left-10 top-8 size-40 rounded-full bg-primary/30 blur-3xl" />
-            <h2 className="relative font-display text-4xl font-extrabold md:text-5xl">
-              Sitting on a referral nobody knows about?
-            </h2>
-            <p className="relative mx-auto mt-4 max-w-xl text-base text-background/70">
-              Post it once and let people find it. Most referrals here get their first copy within a
-              day.
-            </p>
-            <Link
-              to="/post"
-              className="relative mt-8 inline-flex items-center gap-2 rounded-xl border-2 border-background bg-primary px-6 py-3.5 text-base font-semibold text-primary-foreground transition-transform hover:-translate-y-0.5"
-            >
-              Post a referral <ArrowRight className="size-4" />
-            </Link>
-          </Reveal>
-        </section>
       </main>
 
       <SiteFooter />

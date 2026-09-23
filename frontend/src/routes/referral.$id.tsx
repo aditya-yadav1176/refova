@@ -64,9 +64,14 @@ function ReferralDetail() {
     queryKey: ["similar-referrals", r.category, r.id],
     queryFn: async () => {
       try {
-        const resp = await apiGet<{ success: boolean; data: ApiReferral[] }>(`/referrals?category=${r.category}&limit=4`);
+        const resp = await apiGet<{ success: boolean; data: ApiReferral[] }>(
+          `/referrals?category=${r.category}&limit=4`,
+        );
         if (resp && resp.success && Array.isArray(resp.data)) {
-          return resp.data.map(mapApiReferral).filter((x) => x.id !== r.id).slice(0, 3);
+          return resp.data
+            .map(mapApiReferral)
+            .filter((x) => x.id !== r.id)
+            .slice(0, 3);
         }
       } catch {
         // ignore
@@ -80,7 +85,10 @@ function ReferralDetail() {
     // Call backend to track copy and get the real code
     let codeToUse = r.code;
     try {
-      const resp = await apiPostAuth<{ success: boolean; data: { referralCode: string; referralUrl: string } }>(`/referrals/${r.id}/copy`);
+      const resp = await apiPostAuth<{
+        success: boolean;
+        data: { referralCode: string; referralUrl: string };
+      }>(`/referrals/${r.id}/copy`);
       if (resp.success && resp.data) {
         codeToUse = resp.data.referralUrl || resp.data.referralCode || r.code;
       }

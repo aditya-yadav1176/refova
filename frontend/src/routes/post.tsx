@@ -129,7 +129,8 @@ function PostPage() {
         brandName: form.service.trim(),
         categoryId: form.category,
         benefitHeadline: form.benefit.trim(),
-        description: form.summary.trim() || `${form.service.trim()} referral: ${form.benefit.trim()}`,
+        description:
+          form.summary.trim() || `${form.service.trim()} referral: ${form.benefit.trim()}`,
         referralCode: isUrl ? "" : form.code.trim(),
         referralUrl: isUrl ? form.code.trim() : undefined,
         conditions: conditions.length > 0 ? conditions : undefined,

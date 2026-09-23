@@ -199,7 +199,12 @@ export type PaginatedReferrals = {
 export function mapApiReferral(r: ApiReferral): Referral {
   const service = r.brandName || r.title || "Referral";
   const words = service.trim().split(/\s+/);
-  const initials = words.map((w) => w[0] ?? "").join("").toUpperCase().slice(0, 2) || "??";
+  const initials =
+    words
+      .map((w) => w[0] ?? "")
+      .join("")
+      .toUpperCase()
+      .slice(0, 2) || "??";
   const isLink = !!r.referralUrl;
   const code = isLink ? r.referralUrl : r.referralCode;
 
@@ -207,7 +212,8 @@ export function mapApiReferral(r: ApiReferral): Referral {
   const trust: Trust[] = [];
   if (r.verificationStatus === "verified") trust.push("verified");
   if (r.copyCount > 100) trust.push("trusted");
-  if (r.expiryDate && new Date(r.expiryDate).getTime() < Date.now() + 7 * 24 * 60 * 60 * 1000) trust.push("expiring");
+  if (r.expiryDate && new Date(r.expiryDate).getTime() < Date.now() + 7 * 24 * 60 * 60 * 1000)
+    trust.push("expiring");
   if (trust.length === 0) trust.push("new");
 
   // Map benefitHeadline to BenefitType
@@ -215,7 +221,8 @@ export function mapApiReferral(r: ApiReferral): Referral {
   const h = (r.benefitHeadline || "").toLowerCase();
   if (h.includes("cashback")) benefitType = "cashback";
   else if (h.includes("% off") || h.includes("discount")) benefitType = "discount";
-  else if (h.includes("free month") || h.includes("trial") || h.includes("1 month")) benefitType = "free-month";
+  else if (h.includes("free month") || h.includes("trial") || h.includes("1 month"))
+    benefitType = "free-month";
   else if (h.includes("credit")) benefitType = "credits";
 
   // Relative time
@@ -226,12 +233,17 @@ export function mapApiReferral(r: ApiReferral): Referral {
       : "recently";
 
   const postedOn = r.publishedAt
-    ? new Date(r.publishedAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })
+    ? new Date(r.publishedAt).toLocaleDateString("en-IN", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      })
     : "";
 
   // Active status: published, draft, or pending unless expired or suspended
   const isExpired = !!r.expiryDate && new Date(r.expiryDate).getTime() < Date.now();
-  const isActive = (r.status === "published" || r.status === "draft" || r.status === "pending") && !isExpired;
+  const isActive =
+    (r.status === "published" || r.status === "draft" || r.status === "pending") && !isExpired;
 
   return {
     id: r.id,
@@ -259,7 +271,11 @@ export function mapApiReferral(r: ApiReferral): Referral {
     popularity: r.copyCount || 0,
     trust,
     expires: r.expiryDate
-      ? new Date(r.expiryDate).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })
+      ? new Date(r.expiryDate).toLocaleDateString("en-IN", {
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+        })
       : "",
     status: isActive ? "active" : "past",
   };

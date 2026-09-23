@@ -79,7 +79,9 @@ function ProfilePage() {
     queryKey: ["profile-referrals"],
     queryFn: async () => {
       try {
-        const resp = await apiGet<{ success: boolean; data: ApiReferral[] }>("/referrals?limit=100&status=all");
+        const resp = await apiGet<{ success: boolean; data: ApiReferral[] }>(
+          "/referrals?limit=100&status=all",
+        );
         if (resp && resp.success && Array.isArray(resp.data)) {
           return resp.data.map(mapApiReferral);
         }
@@ -100,14 +102,22 @@ function ProfilePage() {
 
     const cleanUsername = username.toLowerCase().replace(/[^a-z0-9]/g, "");
     const cleanName = r.postedBy.name.toLowerCase().replace(/[^a-z0-9]/g, "");
-    if (cleanName && cleanUsername && (cleanName.includes(cleanUsername) || cleanUsername.includes(cleanName))) {
+    if (
+      cleanName &&
+      cleanUsername &&
+      (cleanName.includes(cleanUsername) || cleanUsername.includes(cleanName))
+    ) {
       return true;
     }
     return false;
   });
 
-  const displayName = isSelf && currentUser?.name ? currentUser.name : (posted[0]?.postedBy.name || person.name);
-  const displayInitials = isSelf && currentUser?.initials ? currentUser.initials : (posted[0]?.postedBy.initials || person.initials);
+  const displayName =
+    isSelf && currentUser?.name ? currentUser.name : posted[0]?.postedBy.name || person.name;
+  const displayInitials =
+    isSelf && currentUser?.initials
+      ? currentUser.initials
+      : posted[0]?.postedBy.initials || person.initials;
   const meta = bios[username] ?? { bio: "Sharing referrals with the community.", since: "2026" };
   const totalCopies = posted.reduce((n, r) => n + r.copies, 0);
 
@@ -233,4 +243,3 @@ function Stat({ value, label, icon }: { value: string | number; label: string; i
     </div>
   );
 }
-

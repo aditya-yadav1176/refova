@@ -147,23 +147,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
     try {
       sessionStorage.removeItem(SESSION_KEY);
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   }, []);
 
   /** Call the backend to register or sync user, get back enriched profile. */
-  const syncWithBackend = useCallback(async (fbUser: FirebaseUser, isNew = false): Promise<AuthUser> => {
-    try {
-      const token = await fbUser.getIdToken();
-      const endpoint = isNew ? "/auth/register" : "/auth/me";
-      const resp = await apiPost<{ success: boolean; data: Record<string, unknown> }>(endpoint, {}, token);
-      if (resp.success && resp.data) {
-        return mapToAuthUser(fbUser, resp.data);
+  const syncWithBackend = useCallback(
+    async (fbUser: FirebaseUser, isNew = false): Promise<AuthUser> => {
+      try {
+        const token = await fbUser.getIdToken();
+        const endpoint = isNew ? "/auth/register" : "/auth/me";
+        const resp = await apiPost<{ success: boolean; data: Record<string, unknown> }>(
+          endpoint,
+          {},
+          token,
+        );
+        if (resp.success && resp.data) {
+          return mapToAuthUser(fbUser, resp.data);
+        }
+      } catch {
+        // Backend call failed — still allow auth with basic Firebase data
       }
-    } catch {
-      // Backend call failed — still allow auth with basic Firebase data
-    }
-    return mapToAuthUser(fbUser);
-  }, []);
+      return mapToAuthUser(fbUser);
+    },
+    [],
+  );
 
   // Restore session on mount from sessionStorage (instant, before Firebase resolves)
   useEffect(() => {
@@ -173,7 +182,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const cached = JSON.parse(raw) as AuthUser;
         setUser(cached);
       }
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   }, []);
 
   // Firebase Auth state listener — single source of truth for auth
@@ -209,7 +220,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!isFirebaseConfigured) {
         return {
           success: false,
-          error: "Firebase Web API key is not configured. Please add VITE_FIREBASE_API_KEY in .env.local",
+          error:
+            "Firebase Web API key is not configured. Please add VITE_FIREBASE_API_KEY in .env.local",
         };
       }
       if (!email.trim() || !password.trim()) {
@@ -237,7 +249,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!isFirebaseConfigured) {
         return {
           success: false,
-          error: "Firebase Web API key is not configured. Please add VITE_FIREBASE_API_KEY in .env.local",
+          error:
+            "Firebase Web API key is not configured. Please add VITE_FIREBASE_API_KEY in .env.local",
         };
       }
       setIsLoading(true);
@@ -263,7 +276,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!isFirebaseConfigured) {
       return {
         success: false,
-        error: "Firebase Web API key is not configured. Please add VITE_FIREBASE_API_KEY in .env.local",
+        error:
+          "Firebase Web API key is not configured. Please add VITE_FIREBASE_API_KEY in .env.local",
       };
     }
     setIsLoading(true);

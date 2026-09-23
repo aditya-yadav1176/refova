@@ -38,24 +38,27 @@ export function SavedProvider({ children }: { children: ReactNode }) {
     }
   }, [storageKey]);
 
-  const toggle = useCallback((id: string) => {
-    if (!storageKey) {
-      return false;
-    }
-    let next = false;
-    setSaved((prev) => {
-      const has = prev.includes(id);
-      next = !has;
-      const list = has ? prev.filter((x) => x !== id) : [...prev, id];
-      try {
-        window.localStorage.setItem(storageKey, JSON.stringify(list));
-      } catch {
-        /* ignore */
+  const toggle = useCallback(
+    (id: string) => {
+      if (!storageKey) {
+        return false;
       }
-      return list;
-    });
-    return next;
-  }, [storageKey]);
+      let next = false;
+      setSaved((prev) => {
+        const has = prev.includes(id);
+        next = !has;
+        const list = has ? prev.filter((x) => x !== id) : [...prev, id];
+        try {
+          window.localStorage.setItem(storageKey, JSON.stringify(list));
+        } catch {
+          /* ignore */
+        }
+        return list;
+      });
+      return next;
+    },
+    [storageKey],
+  );
 
   const value = useMemo<SavedCtx>(
     () => ({
@@ -73,7 +76,7 @@ export function SavedProvider({ children }: { children: ReactNode }) {
 // eslint-disable-next-line react-refresh/only-export-components
 export function useSaved() {
   const ctx = useContext(Ctx);
-  if (!ctx) return { saved: [], isSaved: () => false, toggle: () => false, canSave: false } as SavedCtx;
+  if (!ctx)
+    return { saved: [], isSaved: () => false, toggle: () => false, canSave: false } as SavedCtx;
   return ctx;
 }
-

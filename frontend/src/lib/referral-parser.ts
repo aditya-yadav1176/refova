@@ -33,9 +33,14 @@ type BackendParsed = {
 function mapBackendResponse(b: BackendParsed): ParsedReferral {
   const service = b.brandName || "Referral";
   const words = service.trim().split(/\s+/);
-  const initials = words.map((w) => w[0] ?? "").join("").toUpperCase().slice(0, 2) || "??";
+  const initials =
+    words
+      .map((w) => w[0] ?? "")
+      .join("")
+      .toUpperCase()
+      .slice(0, 2) || "??";
   const isLink = !!b.referralUrl;
-  const code = isLink ? b.referralUrl : (b.referralCode || "");
+  const code = isLink ? b.referralUrl : b.referralCode || "";
 
   // Map benefitHeadline to BenefitType
   let benefitType: BenefitType = "reward";
@@ -51,7 +56,8 @@ function mapBackendResponse(b: BackendParsed): ParsedReferral {
   if (b.category) tags.push(b.category);
   if (benefitType !== "reward") tags.push(benefitType);
 
-  const summary = b.description || `Use this ${service} referral to get ${b.benefitHeadline.toLowerCase()}.`;
+  const summary =
+    b.description || `Use this ${service} referral to get ${b.benefitHeadline.toLowerCase()}.`;
 
   return {
     service,
@@ -77,10 +83,9 @@ export async function parseReferralContent(raw: string): Promise<ParsedReferral>
   if (!raw.trim()) throw new Error("Please paste a referral before continuing.");
 
   try {
-    const resp = await apiPostAuth<{ success: boolean; data: BackendParsed }>(
-      "/referrals/parse",
-      { text: raw.trim() },
-    );
+    const resp = await apiPostAuth<{ success: boolean; data: BackendParsed }>("/referrals/parse", {
+      text: raw.trim(),
+    });
     if (resp.success && resp.data) {
       return mapBackendResponse(resp.data);
     }
