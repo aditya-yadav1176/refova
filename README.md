@@ -1,273 +1,190 @@
 # Refova
 
-> A curated, community-driven platform for discovering, sharing, and organizing referral links and promo codes.
+> Find referrals. Share benefits.
 
 ---
 
 ## Overview
 
-**Refova** is a modern web application designed to eliminate the friction of finding and sharing verified referral benefits. Instead of scouring scattered forums, chat groups, and outdated promo sites, Refova provides an editorial card-based marketplace where users can discover authentic referral benefits, verify terms, copy codes with one click, and share their own referral links effortlessly.
+Refova is a web platform for discovering, organizing, and sharing referral codes and links. It gives people a clean, central place to find working referral benefits without searching through chat groups, forum threads, or outdated coupon websites.
 
-The platform embraces a **"Paste once. We organize everything."** philosophy. Rather than forcing contributors through cumbersome multi-field forms, Refova uses an intelligent ingestion parser that extracts brands, referral codes, discount amounts, conditions, and expiry dates directly from unstructured text.
+## What it does
 
----
+Most referral codes are shared in scattered places where they quickly expire, get lost, or clutter conversations. For people looking for a discount or signup perk, finding a code that actually works is frustrating. For people sharing their codes, filling out forms on deal websites takes too much effort.
 
-## Key Features
+Refova solves this by:
+- Organizing referrals into clear, searchable cards with upfront details and terms.
+- Simplifying posting so contributors can paste raw referral text and have it parsed automatically instead of filling out long forms.
+- Allowing visitors to copy codes directly with a single click.
 
-- **Intelligent Referral Ingestion (3-Step Flow)**: Contributors paste free-form referral messages or links. The extraction engine automatically parses the brand, category, code, reward value, conditions, and expiration, rendering a live card preview that can be edited before publishing.
-- **Dynamic Referral Discovery & Filtering**: Search across companies, services, and benefit tags. Multi-facet filtering by category (Finance, Shopping, Food, Travel, etc.), reward type (Cashback, Discount, Free Month, Credits), and sorting (Popular, Newest, Verified).
-- **Asymmetrical Card Design System**: Multi-variant card components (`Featured`, `Standard`, `Compact`, and `List` views) with custom typography, benefit badges, trust scores, and visual claim conditions.
-- **One-Click Claim & Bookmark Engine**: Instant clipboard copy with animated visual feedback and local persistence for bookmarked referrals.
-- **Client-Side Authentication & Profiles**: Complete user authentication lifecycle (`/login` and `/signup`) with real-time field validation, `sessionStorage` persistence, automatic profile navigation, and auth-guarded routing.
-- **User Dashboard & Community Profiles**: Public profile view displaying contributor trust scores, bio, active postings, past shares, and saved referrals.
-- **Editorial Design & Micro-Interactions**: Warm cream canvas, expressive typography, responsive layouts, card hover-lift effects, and spring-based animated interactions.
+## How it works
 
----
+1. **Browse or Search:** Visitors search by service, brand, or benefit (such as cashback, food delivery, or hosting), or filter by category and reward type.
+2. **View & Copy:** Clicking an offer opens its detail page with conditions, expiry date, and trust indicators. Clicking "Copy Code" copies the code or link to the clipboard and records the copy count.
+3. **Paste & Post:** Authenticated users paste raw text or links containing a referral offer. Refova parses the text to extract brand, category, benefit, and terms. The user reviews and edits the generated card before publishing it to the platform.
+4. **Accounts & Profiles:** Users can sign up with email and password or Google Sign-In to track their submissions, view saved referrals, and manage their profile.
 
-## Tech Stack
+## Key features
 
-| Layer                     | Technology                                                                                    | Description                                                              |
-| :------------------------ | :-------------------------------------------------------------------------------------------- | :----------------------------------------------------------------------- |
-| **Frontend Framework**    | [React 19](https://react.dev/)                                                                | Component architecture with modern hooks and React 19 compiler readiness |
-| **Routing & App Shell**   | [TanStack Router](https://tanstack.com/router) & [TanStack Start](https://tanstack.com/start) | Type-safe, file-based routing and SSR application shell                  |
-| **State & Data Fetching** | [TanStack Query v5](https://tanstack.com/query)                                               | Async state handling, query caching, and client contexts                 |
-| **Styling & Theme**       | [Tailwind CSS v4](https://tailwindcss.com/)                                                   | CSS-first styling engine utilizing custom OKLCH color tokens             |
-| **UI Components & Icons** | [Radix UI](https://www.radix-ui.com/) & [Lucide React](https://lucide.dev/)                   | Accessible UI primitives and iconography                                 |
-| **Notifications**         | [Sonner](https://sonner.emilkowal.ski/)                                                       | Toast notification system for user actions and feedback                  |
-| **Validation**            | [Zod](https://zod.dev/)                                                                       | Schema validation for query parameters and forms                         |
-| **Build & Tooling**       | [Vite 8](https://vitejs.dev/) & [TypeScript 5.8](https://www.typescriptlang.org/)             | Next-generation frontend tooling and strict static typing                |
+- **Text Parser for Submissions:** Automatically identifies brands, benefit types, codes, links, conditions, and expiry dates from pasted messages.
+- **Search & Multi-Filter Discovery:** Keyword search, category filtering, benefit type filtering (cashback, discount, credits, free months), and sorting by newest or popular.
+- **Card & List Views:** Flexible display options for browsing referral listings.
+- **One-Click Code Copying:** Copies codes or opens links while keeping track of claim counts.
+- **Save & Bookmark:** Allows users to save offers for later reference.
+- **User Authentication & Profiles:** Email/password and Google authentication, public user profiles, trust scores, and submission management.
+- **Admin Moderation Tools:** Backend routes and controls to review, verify, feature, or remove submissions and manage reported links.
 
----
+## Who it is for
 
-## Application Architecture
+- **Everyday users** looking for working referral codes, cashback, or signup bonuses when trying new products and services.
+- **Community contributors** who have referral codes and want a simple way to share them with people who are actively looking for them.
 
-Refova is built with a modular, decoupled architecture where presentation, client-side state, and extraction services are strictly isolated.
+## Tech stack
 
-```mermaid
-flowchart TD
-    subgraph Client ["Client Browser"]
-        A[App Shell / __root.tsx] --> B[TanStack Router]
-        B --> C[Pages & Routes]
+### Frontend
+- **Framework:** React 19 with Vite
+- **Routing & SSR:** TanStack Router and TanStack Start
+- **Data Fetching:** TanStack Query
+- **Styling:** Tailwind CSS v4
+- **Components & Icons:** Radix UI primitives and Lucide React
+- **Authentication Client:** Firebase Auth
 
-        subgraph Providers ["Context Providers"]
-            D[AuthProvider]
-            E[SavedProvider]
-            F[QueryClientProvider]
-        end
+### Backend
+- **Runtime & Framework:** Node.js (>=18) and Express
+- **Database & Storage:** Firebase Firestore (database) and Firebase Storage (media)
+- **Auth Verification:** Firebase Admin SDK
+- **Validation & Security:** Joi, Helmet, CORS, and Express Rate Limit
+- **Testing:** Jest and Supertest
 
-        C --> Providers
+## Getting started
 
-        subgraph UI ["Component Layer"]
-            G[ReferralCard Variants]
-            H[ResultsExplorer]
-            I[SiteHeader & SiteFooter]
-        end
+### Prerequisites
+- **Node.js**: `v18.0.0` or higher
+- **npm**: `v9.0.0` or higher
+- A Firebase project with Authentication (Email/Password and Google providers), Cloud Firestore, and Cloud Storage enabled.
 
-        Providers --> UI
-    end
-
-    subgraph Logic ["Services & State Engine"]
-        J[Referral Parser Service\nparseReferralContent]
-        K[Static Dataset\nsrc/lib/referrals.ts]
-        L[Session & Local Storage\nsessionStorage / localStorage]
-    end
-
-    C --> Logic
-    J -.->|Future API Hook| M[(Backend / AI Service)]
+### 1. Clone the repository
+```bash
+git clone https://github.com/aditya-yadav1176/refova.git
+cd refova
 ```
 
----
+### 2. Install dependencies
+Install dependencies for both frontend and backend:
 
-## Project Structure
+```bash
+# Frontend
+cd frontend
+npm install
+cd ..
+
+# Backend
+cd backend
+npm install
+cd ..
+```
+
+### 3. Environment configuration
+
+#### Backend (`backend/.env`)
+Create a `.env` file in the `backend/` directory by copying `backend/.env.example`:
+```bash
+cp backend/.env.example backend/.env
+```
+Provide your Firebase service account details and configuration:
+- `PORT`: API server port (default: `10000`)
+- `NODE_ENV`: `development` or `production`
+- `FRONTEND_URL`: `http://localhost:8080` (or your client origin)
+- `FIREBASE_PROJECT_ID`: Your Firebase project ID
+- `FIREBASE_CLIENT_EMAIL`: Service account client email
+- `FIREBASE_PRIVATE_KEY`: Service account private key
+- `FIREBASE_STORAGE_BUCKET`: Firebase storage bucket name
+
+#### Frontend (`frontend/.env.local`)
+Create a `.env.local` file in the `frontend/` directory by copying `frontend/.env.example`:
+```bash
+cp frontend/.env.example frontend/.env.local
+```
+Provide your Firebase web client credentials:
+- `VITE_API_URL`: Backend API URL (default: `http://localhost:10000`)
+- `VITE_FIREBASE_API_KEY`: Firebase web API key
+- `VITE_FIREBASE_AUTH_DOMAIN`: Firebase auth domain
+- `VITE_FIREBASE_PROJECT_ID`: Firebase project ID
+- `VITE_FIREBASE_STORAGE_BUCKET`: Firebase storage bucket
+- `VITE_FIREBASE_MESSAGING_SENDER_ID`: Firebase messaging sender ID
+- `VITE_FIREBASE_APP_ID`: Firebase application ID
+
+### 4. Database initialization (Backend)
+Run the seed scripts to populate initial categories and counters in Firestore:
+```bash
+cd backend
+npm run seed:categories
+npm run seed:counters
+cd ..
+```
+
+### 5. Running the application
+You can run both parts from the repository root using the workspace scripts:
+
+```bash
+# Start backend API (runs on http://localhost:10000)
+npm run dev:backend
+
+# Start frontend application (runs on http://localhost:8080)
+npm run dev:frontend
+```
+
+Alternatively, you can run them in separate terminals:
+- **Frontend**: `cd frontend && npm run dev`
+- **Backend**: `cd backend && npm run dev`
+
+### 6. Running tests
+```bash
+npm run test:backend
+```
+
+## Project structure
 
 ```text
 refova/
-├── public/                     # Static assets and open-graph preview images
-│   ├── og/                     # Dynamic OG preview cards (home, discover, post, referral)
-│   ├── favicon.ico
-│   └── robots.txt
-├── src/
-│   ├── components/
-│   │   ├── referral/           # Referral cards, action buttons, badges, results explorer
-│   │   ├── site/               # Header, footer, animated reveal wrappers, brand wordmark
-│   │   └── ui/                 # Reusable Radix-based UI components (dialogs, dropdowns, inputs)
-│   ├── hooks/                  # Custom React hooks (use-mobile, etc.)
-│   ├── lib/
-│   │   ├── auth.tsx            # Auth context, session state, login/signup/logout methods
-│   │   ├── referral-parser.ts  # NLP & rule-based referral extraction service
-│   │   ├── referrals.ts        # Referral types, categories, and mock community dataset
-│   │   ├── saved.tsx           # Saved/bookmarked referrals context & storage adapter
-│   │   └── utils.ts            # Classnames merging (clsx + tailwind-merge)
-│   ├── routes/                 # File-based TanStack routes
-│   │   ├── __root.tsx          # Root shell layout with global providers and SEO head tags
-│   │   ├── index.tsx           # Home landing page with hero, featured cards, and category grid
-│   │   ├── discover.tsx        # Search and discover feed with dynamic filters
-│   │   ├── category.$slug.tsx  # Category-specific referral listings
-│   │   ├── referral.$id.tsx    # Single referral detail page with claim instructions
-│   │   ├── post.tsx            # 3-step simplified referral creation flow
-│   │   ├── profile.$username.tsx # User profile and referral management dashboard
-│   │   ├── login.tsx           # Authentication login page
-│   │   └── signup.tsx          # User registration page
-│   ├── routeTree.gen.ts        # Auto-generated TanStack route tree
-│   ├── server.ts               # SSR entry point and catastrophic error handler
-│   ├── start.ts                # TanStack Start middleware (CSRF and error handling)
-│   └── styles.css              # Tailwind v4 CSS theme, typography, and OKLCH color variables
-├── package.json
-├── tsconfig.json
-├── vite.config.ts
-└── README.md
+├── frontend/                     # React 19 + TanStack frontend
+│   ├── public/                   # Static assets
+│   ├── src/
+│   │   ├── components/           # UI components (referral cards, explorer, header, footer)
+│   │   ├── lib/                  # API client, auth context, parsing fallback, types
+│   │   ├── routes/               # File-based routes (home, discover, post, referral, profile, auth)
+│   │   ├── styles.css            # Tailwind CSS v4 setup and theme variables
+│   │   └── server.ts             # SSR application entry
+│   ├── package.json
+│   └── vite.config.ts
+│
+├── backend/                      # Node.js + Express API
+│   ├── scripts/                  # Seed and administrative scripts
+│   ├── src/
+│   │   ├── config/               # Environment and Firebase Admin setup
+│   │   ├── controllers/          # Route controller handlers
+│   │   ├── middleware/           # Auth, rate limiting, and error handling
+│   │   ├── routes/               # API route definitions
+│   │   ├── services/             # Database logic, parsing service, user service
+│   │   └── utils/                # Response helpers, validators, logger
+│   ├── tests/                    # Jest + Supertest API tests
+│   ├── package.json
+│   └── render.yaml               # Deployment specification
+│
+├── package.json                  # Root monorepo scripts
+└── README.md                     # Project documentation
 ```
 
----
+## Project status
 
-## Getting Started
+Refova is an active full-stack project. The frontend application and backend API are functional and integrated:
+- The discovery feed, filtering, search, and referral views consume live backend data.
+- User authentication and session handling work with Firebase Auth and backend profile syncing.
+- Referral posting, text parsing, and copy tracking are operational.
+- Admin moderation endpoints and database seed scripts are implemented.
 
-### Prerequisites
+## Contributors
 
-Ensure you have the following installed on your machine:
-
-- **Node.js**: `v18.0.0` or higher
-- **npm**: `v9.0.0` or higher
-
-### Installation
-
-1. Clone the repository:
-
-   ```bash
-   git clone https://github.com/aditya-yadav1176/refova.git
-   cd refova
-   ```
-
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-### Running Locally
-
-Start the local Vite development server:
-
-```bash
-npm run dev
-```
-
-The application will be accessible at:
-
-```text
-http://localhost:8080/
-```
-
-### Environment Variables
-
-The current frontend prototype runs entirely client-side with mock data and local persistence. No external API keys are required for local development.
-
-When connecting to external authentication or production backend services, configuration variables can be added to a `.env.local` file:
-
-```env
-# Optional future backend configuration
-VITE_API_BASE_URL=https://api.yourdomain.com
-```
-
----
-
-## Core User Flows
-
-### 1. Discovery & Claiming
-
-```text
-[Landing / Home]
-       │
-       ▼
-[Discover Feed] ──(Search / Filter)──► [Select Referral Card]
-                                              │
-                                              ▼
-                                    [Referral Detail Page]
-                                              │
-                                     [Copy Code / Save]
-```
-
-### 2. Simplified Ingestion Flow
-
-```text
-[Click 'Post a Referral']
-       │
-       ▼
-[Step 1: Paste Textarea] ──(Enter message/code)──► [Click 'Create Referral']
-                                                         │
-                                                         ▼
-[Step 2: Review & Edit]  ◄──(Live Preview Card)─── [Parser Extracts Parameters]
-       │
-       ▼
-[Step 3: Publish] ──► [Live Referral in Feed]
-```
-
----
-
-## Authentication System
-
-Authentication is managed via a centralized React Context Provider ([`src/lib/auth.tsx`](file:///d:/Projects/refova/src/lib/auth.tsx)) designed with isolated swap-points for backend authentication providers:
-
-- **State Management**: Persists the authenticated user in `sessionStorage` under `refova-auth-user`.
-- **Validation**: Client-side field validation for email formats, password strength (min. 8 characters), and password confirmation matching.
-- **Route Guards**: Authenticated users attempting to visit `/login` or `/signup` are automatically redirected to their profile dashboard or intended destination.
-- **Backend Readiness**: The authentication functions (`mockAuthLogin` and `mockAuthSignup`) are fully decoupled, allowing drop-in integration with services such as Firebase Auth, Supabase, or custom OAuth/JWT endpoints.
-
----
-
-## Referral Parser Architecture
-
-The extraction logic in [`src/lib/referral-parser.ts`](file:///d:/Projects/refova/src/lib/referral-parser.ts) exposes a single asynchronous interface:
-
-```typescript
-export async function parseReferralContent(raw: string): Promise<ParsedReferral>;
-```
-
-### Supported Extraction Capabilities
-
-- **Brand Detection**: Pattern-matches brand identities across e-commerce, fintech, food delivery, travel, streaming, and developer tools.
-- **Code & Link Parsing**: Identifies promo codes, token sequences, and affiliate URLs.
-- **Benefit Extraction**: Detects cashbacks (e.g., `₹500 CASHBACK`), percentage discounts (`20% OFF`), free trials (`1 MONTH FREE`), and credit rewards.
-- **Condition Parsing**: Identifies terms such as minimum spend thresholds, KYC requirements, and new-user constraints.
-- **Expiration Dates**: Normalizes natural language date formats into structured strings.
-
-> **Backend Developer Note**: To connect a server-side AI model or regex microservice, simply replace the internal body of `parseReferralContent` with an HTTP `fetch` call to your API endpoint without altering the UI contracts.
-
----
-
-## Workspace Scripts
-
-| Command | Purpose |
-| :--- | :--- |
-| `npm run dev:frontend` | Starts the Frontend development server |
-| `npm run dev:backend` | Starts the Backend Express development server |
-| `npm run build:frontend` | Compiles the production build for frontend |
-| `npm run test:backend` | Runs the full backend test suite |
-
-### Frontend (`cd frontend`)
-- `npm run dev`: Start Vite dev server on port `8080`
-- `npm run build`: Production bundle compilation
-- `npm run lint`: Linting with ESLint
-
-### Backend (`cd backend`)
-- `npm run dev`: Start Express API server with file watching on port `10000`
-- `npm test`: Run Jest test suite
-- `npm start`: Production server launch
-
----
-
-## Design & UI System
-
-- **Color System**: Uses OKLCH-based theme tokens (`--color-primary`, `--color-cream`, `--color-paper`, `--color-leaf`, `--color-grape`, `--color-rose`).
-- **Typography Hierarchy**:
-  - **Headings & Badges**: `Bricolage Grotesque`
-  - **Body & UI**: `Plus Jakarta Sans`
-  - **Referral Codes & Monospace Data**: `JetBrains Mono`
-- **Responsive Layout**: Designed mobile-first with adaptive layouts for standard mobile viewports, tablets, and wide-screen desktop displays.
-
----
-
-## Security & Reliability
-
-- **CSRF Protection**: Pre-configured CSRF middleware integration via TanStack Start in `src/start.ts`.
-- **SSR Error Normalization**: Fallback SSR error wrapper in `src/server.ts` to prevent server crashes from unhandled execution exceptions.
-- **Client Input Sanitization**: Controlled form inputs and boundary error logging.
+Refova is built and maintained collaboratively by:
+- **Aditya Yadav** ([@aditya-yadav1176](https://github.com/aditya-yadav1176))
+- **Harshit Tripathi** ([@htripathi9324](https://github.com/htripathi9324))
