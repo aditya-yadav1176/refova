@@ -245,7 +245,26 @@ export function SiteFooter({ hideCta = false }: SiteFooterProps) {
         {/* ─── 4. BOTTOM BAR (Seamless, no extra thick divider) ─── */}
         <div className="mt-3 flex flex-col items-center justify-between gap-2.5 pt-3 text-xs text-muted-foreground sm:flex-row md:mt-4">
           <p>© 2026 Refova</p>
-          <p>Designed &amp; developed by Aditya &amp; Harshit</p>
+          <p>
+            Designed &amp; developed by{" "}
+            <a
+              href="https://yadavaditya.vercel.app/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="transition-colors hover:text-foreground"
+            >
+              Aditya
+            </a>{" "}
+            &amp;{" "}
+            <a
+              href="https://harshittripathi.vercel.app/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="transition-colors hover:text-foreground"
+            >
+              Harshit
+            </a>
+          </p>
         </div>
       </div>
     </footer>
