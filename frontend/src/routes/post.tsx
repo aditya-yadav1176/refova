@@ -12,30 +12,49 @@ import { useAuth } from "@/lib/auth";
 import { getRequestOrigin } from "@/lib/origin.functions";
 import { cn } from "@/lib/utils";
 
+const SITE_URL = "https://refova.vercel.app";
+
 // ─── Route ────────────────────────────────────────────────────────────────────
 
 export const Route = createFileRoute("/post")({
-  loader: async () => ({ origin: await getRequestOrigin() }),
-  head: ({ loaderData }) => ({
-    meta: [
-      { title: "Post a referral — Refova" },
-      {
-        name: "description",
-        content:
-          "Paste your referral message or code. Refova organizes the details automatically so you can share in seconds.",
-      },
-      { property: "og:title", content: "Post a referral — Refova" },
-      {
-        property: "og:description",
-        content: "Paste once. We organize everything.",
-      },
-      { property: "og:type", content: "website" },
-      { property: "og:url", content: "/post" },
-      { property: "og:image", content: `${loaderData?.origin ?? ""}/og/post.jpg` },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-    links: [{ rel: "canonical", href: "/post" }],
-  }),
+  loader: async () => ({ origin: (await getRequestOrigin()) || SITE_URL }),
+  head: ({ loaderData }) => {
+    const origin = loaderData?.origin || SITE_URL;
+    const ogImage = `${origin}/og/post.jpg`;
+    const title = "Post a referral — Refova";
+    const description =
+      "Paste your referral message or code. Refova organizes the details automatically so you can share in seconds.";
+
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        { property: "og:site_name", content: "Refova" },
+        { property: "og:title", content: title },
+        {
+          property: "og:description",
+          content: "Paste once. We organize everything.",
+        },
+        { property: "og:type", content: "website" },
+        { property: "og:url", content: `${origin}/post` },
+        { property: "og:image", content: ogImage },
+        { property: "og:image:secure_url", content: ogImage },
+        { property: "og:image:type", content: "image/jpeg" },
+        { property: "og:image:width", content: "1200" },
+        { property: "og:image:height", content: "640" },
+        { property: "og:image:alt", content: title },
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:title", content: title },
+        {
+          name: "twitter:description",
+          content: "Paste once. We organize everything.",
+        },
+        { name: "twitter:image", content: ogImage },
+        { name: "twitter:image:alt", content: title },
+      ],
+      links: [{ rel: "canonical", href: `${origin}/post` }],
+    };
+  },
   component: PostPage,
 });
 

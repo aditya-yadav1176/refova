@@ -72,27 +72,39 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   );
 }
 
+const SITE_URL = "https://refova.vercel.app";
+const DEFAULT_TITLE = "Refova — find referrals, share benefits";
+const DEFAULT_DESCRIPTION =
+  "A curated place to discover, copy and share referral links and codes across finance, food, travel, shopping and developer tools.";
+const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.jpg`;
+
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   head: () => ({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Refova — discover and share referrals" },
-      {
-        name: "description",
-        content: "Refova is a curated place to discover, copy and share referral links and codes.",
-      },
+      { title: DEFAULT_TITLE },
+      { name: "description", content: DEFAULT_DESCRIPTION },
       { name: "author", content: "Refova" },
       { property: "og:site_name", content: "Refova" },
-      { property: "og:title", content: "Refova — discover and share referrals" },
-      {
-        property: "og:description",
-        content: "Discover, copy and share referral offers posted by real people.",
-      },
+      { property: "og:title", content: DEFAULT_TITLE },
+      { property: "og:description", content: DEFAULT_DESCRIPTION },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: `${SITE_URL}/` },
+      { property: "og:image", content: DEFAULT_OG_IMAGE },
+      { property: "og:image:secure_url", content: DEFAULT_OG_IMAGE },
+      { property: "og:image:type", content: "image/jpeg" },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "627" },
+      { property: "og:image:alt", content: DEFAULT_TITLE },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: DEFAULT_TITLE },
+      { name: "twitter:description", content: DEFAULT_DESCRIPTION },
+      { name: "twitter:image", content: DEFAULT_OG_IMAGE },
+      { name: "twitter:image:alt", content: DEFAULT_TITLE },
     ],
     links: [
+      { rel: "canonical", href: `${SITE_URL}/` },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
@@ -103,7 +115,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: appCss,
       },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "icon", href: "/favicon.ico", sizes: "48x48" },
+      { rel: "icon", href: "/favicon-32x32.png", type: "image/png", sizes: "32x32" },
+      { rel: "icon", href: "/favicon-16x16.png", type: "image/png", sizes: "16x16" },
+      { rel: "apple-touch-icon", href: "/apple-touch-icon.png", sizes: "180x180" },
     ],
   }),
   shellComponent: RootShell,

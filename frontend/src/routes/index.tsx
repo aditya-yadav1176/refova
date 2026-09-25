@@ -10,36 +10,41 @@ import { apiGet } from "@/lib/api";
 import { Reveal } from "@/components/site/reveal";
 import { getRequestOrigin } from "@/lib/origin.functions";
 
+const SITE_URL = "https://refova.vercel.app";
+
 export const Route = createFileRoute("/")({
-  loader: async () => ({ origin: await getRequestOrigin() }),
-  head: ({ loaderData }) => ({
-    meta: [
-      { title: "Refova — find referrals, share benefits" },
-      {
-        name: "description",
-        content:
-          "A curated place to discover, copy and share referral links and codes across finance, food, travel, shopping and developer tools.",
-      },
-      { property: "og:title", content: "Refova — find referrals, share benefits" },
-      {
-        property: "og:description",
-        content:
-          "Discover referral offers posted by real people — copy the code, claim the benefit, share your own.",
-      },
-      { property: "og:type", content: "website" },
-      { property: "og:url", content: "/" },
-      { property: "og:image", content: `${loaderData?.origin ?? ""}/og/home.jpg` },
-      { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "Refova — find referrals, share benefits" },
-      {
-        name: "twitter:description",
-        content:
-          "Discover referral offers posted by real people — copy the code, claim the benefit, share your own.",
-      },
-      { name: "twitter:image", content: `${loaderData?.origin ?? ""}/og/home.jpg` },
-    ],
-    links: [{ rel: "canonical", href: "/" }],
-  }),
+  loader: async () => ({ origin: (await getRequestOrigin()) || SITE_URL }),
+  head: ({ loaderData }) => {
+    const origin = loaderData?.origin || SITE_URL;
+    const ogImage = `${origin}/og-image.jpg`;
+    const title = "Refova — find referrals, share benefits";
+    const description =
+      "A curated place to discover, copy and share referral links and codes across finance, food, travel, shopping and developer tools.";
+
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        { property: "og:site_name", content: "Refova" },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { property: "og:type", content: "website" },
+        { property: "og:url", content: `${origin}/` },
+        { property: "og:image", content: ogImage },
+        { property: "og:image:secure_url", content: ogImage },
+        { property: "og:image:type", content: "image/jpeg" },
+        { property: "og:image:width", content: "1200" },
+        { property: "og:image:height", content: "627" },
+        { property: "og:image:alt", content: title },
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:title", content: title },
+        { name: "twitter:description", content: description },
+        { name: "twitter:image", content: ogImage },
+        { name: "twitter:image:alt", content: title },
+      ],
+      links: [{ rel: "canonical", href: `${origin}/` }],
+    };
+  },
   component: Home,
 });
 

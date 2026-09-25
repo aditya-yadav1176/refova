@@ -5,39 +5,43 @@ import { SiteHeader } from "@/components/site/site-header";
 import { SiteFooter } from "@/components/site/site-footer";
 import { ResultsExplorer } from "@/components/referral/results-explorer";
 
+const SITE_URL = "https://refova.vercel.app";
 const searchSchema = z.object({ q: z.string().optional() });
 
 export const Route = createFileRoute("/discover")({
   validateSearch: searchSchema,
-  loader: async () => ({ origin: await getRequestOrigin() }),
-  head: ({ loaderData }) => ({
-    meta: [
-      { title: "Discover referral codes and links — Refova" },
-      {
-        name: "description",
-        content:
-          "Search, filter and sort community-posted referral links and codes across finance, food, travel, developer tools and more.",
-      },
-      { property: "og:title", content: "Discover referral codes and links — Refova" },
-      {
-        property: "og:description",
-        content:
-          "Search and filter referral offers posted by real people, then copy the code in one click.",
-      },
-      { property: "og:type", content: "website" },
-      { property: "og:url", content: "/discover" },
-      { property: "og:image", content: `${loaderData?.origin ?? ""}/og/discover.jpg` },
-      { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "Discover referral codes and links — Refova" },
-      {
-        name: "twitter:description",
-        content:
-          "Search and filter referral offers posted by real people, then copy the code in one click.",
-      },
-      { name: "twitter:image", content: `${loaderData?.origin ?? ""}/og/discover.jpg` },
-    ],
-    links: [{ rel: "canonical", href: "/discover" }],
-  }),
+  loader: async () => ({ origin: (await getRequestOrigin()) || SITE_URL }),
+  head: ({ loaderData }) => {
+    const origin = loaderData?.origin || SITE_URL;
+    const ogImage = `${origin}/og/discover.jpg`;
+    const title = "Discover referral codes and links — Refova";
+    const description =
+      "Search, filter and sort community-posted referral links and codes across finance, food, travel, developer tools and more.";
+
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        { property: "og:site_name", content: "Refova" },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { property: "og:type", content: "website" },
+        { property: "og:url", content: `${origin}/discover` },
+        { property: "og:image", content: ogImage },
+        { property: "og:image:secure_url", content: ogImage },
+        { property: "og:image:type", content: "image/jpeg" },
+        { property: "og:image:width", content: "1200" },
+        { property: "og:image:height", content: "640" },
+        { property: "og:image:alt", content: title },
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:title", content: title },
+        { name: "twitter:description", content: description },
+        { name: "twitter:image", content: ogImage },
+        { name: "twitter:image:alt", content: title },
+      ],
+      links: [{ rel: "canonical", href: `${origin}/discover` }],
+    };
+  },
   component: DiscoverPage,
 });
 

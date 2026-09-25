@@ -31,6 +31,8 @@ const bios: Record<string, { bio: string; since: string }> = {
   dev: { bio: "New here. Sharing whatever I find useful.", since: "June 2026" },
 };
 
+const SITE_URL = "https://refova.vercel.app";
+
 export const Route = createFileRoute("/profile/$username")({
   loader: ({ params }) => {
     const person = {
@@ -50,13 +52,31 @@ export const Route = createFileRoute("/profile/$username")({
     const { person } = loaderData;
     const title = `${person.name} — referrals shared on Refova`;
     const description = `Browse active, past and saved referrals on Refova.`;
+    const url = `${SITE_URL}/profile/${person.username}`;
+    const ogImage = `${SITE_URL}/og-image.jpg`;
+
     return {
       meta: [
         { title },
         { name: "description", content: description },
+        { property: "og:site_name", content: "Refova" },
         { property: "og:title", content: title },
         { property: "og:description", content: description },
+        { property: "og:type", content: "profile" },
+        { property: "og:url", content: url },
+        { property: "og:image", content: ogImage },
+        { property: "og:image:secure_url", content: ogImage },
+        { property: "og:image:type", content: "image/jpeg" },
+        { property: "og:image:width", content: "1200" },
+        { property: "og:image:height", content: "627" },
+        { property: "og:image:alt", content: title },
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:title", content: title },
+        { name: "twitter:description", content: description },
+        { name: "twitter:image", content: ogImage },
+        { name: "twitter:image:alt", content: title },
       ],
+      links: [{ rel: "canonical", href: url }],
     };
   },
   component: ProfilePage,

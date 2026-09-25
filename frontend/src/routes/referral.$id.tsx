@@ -13,6 +13,8 @@ import { getRequestOrigin } from "@/lib/origin.functions";
 import { cn } from "@/lib/utils";
 import { apiGet, apiPostAuth } from "@/lib/api";
 
+const SITE_URL = "https://refova.vercel.app";
+
 export const Route = createFileRoute("/referral/$id")({
   loader: async ({ params }) => {
     let referral: Referral | undefined;
@@ -25,7 +27,7 @@ export const Route = createFileRoute("/referral/$id")({
       // Backend returned 404 or error
     }
     if (!referral) throw notFound();
-    return { referral, origin: await getRequestOrigin() };
+    return { referral, origin: (await getRequestOrigin()) || SITE_URL };
   },
   head: ({ loaderData }) => {
     if (!loaderData) {
@@ -34,22 +36,32 @@ export const Route = createFileRoute("/referral/$id")({
       };
     }
     const r = loaderData.referral;
+    const origin = loaderData.origin || SITE_URL;
+    const ogImage = `${origin}/og/referral.jpg`;
     const title = `${r.service} referral — ${r.benefit.toLowerCase()} · Refova`;
+    const url = `${origin}/referral/${r.id}`;
     return {
       meta: [
         { title },
         { name: "description", content: r.summary },
+        { property: "og:site_name", content: "Refova" },
         { property: "og:title", content: title },
         { property: "og:description", content: r.summary },
         { property: "og:type", content: "article" },
-        { property: "og:url", content: `/referral/${r.id}` },
-        { property: "og:image", content: `${loaderData.origin}/og/referral.jpg` },
+        { property: "og:url", content: url },
+        { property: "og:image", content: ogImage },
+        { property: "og:image:secure_url", content: ogImage },
+        { property: "og:image:type", content: "image/jpeg" },
+        { property: "og:image:width", content: "1200" },
+        { property: "og:image:height", content: "640" },
+        { property: "og:image:alt", content: title },
         { name: "twitter:card", content: "summary_large_image" },
         { name: "twitter:title", content: title },
         { name: "twitter:description", content: r.summary },
-        { name: "twitter:image", content: `${loaderData.origin}/og/referral.jpg` },
+        { name: "twitter:image", content: ogImage },
+        { name: "twitter:image:alt", content: title },
       ],
-      links: [{ rel: "canonical", href: `/referral/${r.id}` }],
+      links: [{ rel: "canonical", href: url }],
     };
   },
   component: ReferralDetail,

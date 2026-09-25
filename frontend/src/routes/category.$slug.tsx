@@ -5,6 +5,8 @@ import { SiteFooter } from "@/components/site/site-footer";
 import { ResultsExplorer } from "@/components/referral/results-explorer";
 import { categoryBySlug, type CategorySlug } from "@/lib/referrals";
 
+const SITE_URL = "https://refova.vercel.app";
+
 export const Route = createFileRoute("/category/$slug")({
   loader: ({ params }) => {
     const category = categoryBySlug[params.slug as CategorySlug];
@@ -20,13 +22,31 @@ export const Route = createFileRoute("/category/$slug")({
     const { category } = loaderData;
     const title = `${category.name} referrals — browse and copy · Refova`;
     const description = `${category.count} community-posted ${category.name.toLowerCase()} referral codes and links. ${category.blurb}.`;
+    const url = `${SITE_URL}/category/${category.slug}`;
+    const ogImage = `${SITE_URL}/og-image.jpg`;
+
     return {
       meta: [
         { title },
         { name: "description", content: description },
+        { property: "og:site_name", content: "Refova" },
         { property: "og:title", content: title },
         { property: "og:description", content: description },
+        { property: "og:type", content: "website" },
+        { property: "og:url", content: url },
+        { property: "og:image", content: ogImage },
+        { property: "og:image:secure_url", content: ogImage },
+        { property: "og:image:type", content: "image/jpeg" },
+        { property: "og:image:width", content: "1200" },
+        { property: "og:image:height", content: "627" },
+        { property: "og:image:alt", content: title },
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:title", content: title },
+        { name: "twitter:description", content: description },
+        { name: "twitter:image", content: ogImage },
+        { name: "twitter:image:alt", content: title },
       ],
+      links: [{ rel: "canonical", href: url }],
     };
   },
   component: CategoryPage,
