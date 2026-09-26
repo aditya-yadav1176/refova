@@ -236,7 +236,7 @@ export function SiteFooter({ hideCta = false }: SiteFooterProps) {
             )}
           >
             <span className="block font-display text-[clamp(3.5rem,14.5vw,13.8rem)] font-black leading-[0.84] tracking-[-0.05em] text-[#221C18] uppercase">
-              REFOVA
+              RE<span className="text-primary">FOVA</span>
               <span className="inline-block size-[0.14em] rounded-full bg-primary align-baseline" />
             </span>
           </div>

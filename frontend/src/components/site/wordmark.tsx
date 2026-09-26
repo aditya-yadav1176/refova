@@ -23,8 +23,8 @@ export function Wordmark({
           size === "lg" && "text-3xl",
         )}
       >
-        Ref
-        <span className="text-primary">ova</span>
+        Re
+        <span className="text-primary">fova</span>
       </span>
       <span
         aria-hidden
